@@ -70,7 +70,7 @@ class Grid:
         else:
             score = 3600
         if len(rows) > 0:
-            print("Scored " + str(score) + " points")
+            # print("Scored " + str(score) + " points")
             self.score_list.append(TextFloater(self.screen, self.score_timeout, self.score_font,
                                                # Block.get_color(self.current_block.block_type.value), score,
                                                (255, 255, 255), score,

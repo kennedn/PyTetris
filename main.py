@@ -13,7 +13,7 @@ BLOCK_TICK = 600            # Determines when the block moves down one row
 FPS = 60                    # Frames per seconds
 SPEED_MULTIPLIER = 6        # How quickly should the block fall when pressing down * BLOCK_TICK
 SCORE_TIMEOUT = 700         # How quickly should a tetris score show for
-DEBUG = 1                   # Debug level, higher values do cooler things
+DEBUG = 0                   # Debug level, higher values do cooler things
 
 pygame.init()
 pygame.font.init()
@@ -68,26 +68,7 @@ while True:
                 grid._Grid__create_block()
             # Respawn the grid with custom array
             if event.type == pygame.KEYDOWN and event.key == pygame.K_0:
-                grid.grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+                grid.grid = [[0 for x in range(BLOCK_WIDTH)] for y in range(BLOCK_HEIGHT)]
             # Print a trimmed matrix (no blank rows / columns)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                 matrix = grid.current_block.get_trimmed_matrix()
