@@ -1,5 +1,4 @@
 from block import Block
-from block import BlockType
 from clamp import clamp
 from text_floater import TextFloater
 import random
@@ -21,6 +20,7 @@ class Grid:
         self.block_line_width = block_line_width
         self.line_width = line_width
         self.counter = 0
+        self.still_moving_counter = 0
         self.debug_font = debug_font
         self.x_offset = x_offset
         self.y_offset = y_offset
@@ -31,22 +31,30 @@ class Grid:
         self.grid = [[0 for x in range(self.block_width)] for y in range(self.block_height)]
 
         # Make a list of all 7 block types
-        self.block_list = list(BlockType)
+        self.block_list = range(1,8)
         # Generate random tetromino at top of screen
         self.__create_block()
 
     # Choose a random tetromino and spawn at top
     def __create_block(self):
-        self.current_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
-                                   self.block_width, self.block_height,
-                                   self.block_size, self.block_line_width, self.x_offset, self.y_offset)
+        try:
+            self.current_block = self.next_block
+        except:
+            self.current_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
+                                    self.block_width, self.block_height,
+                                    self.block_size, self.block_line_width, self.x_offset, self.y_offset)
+        self.current_block.position = (self.current_block.position[0], 0)
+        self.next_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
+                                    self.block_width, self.block_height,
+                                    self.block_size, self.block_line_width, self.x_offset, self.y_offset)
+        self.next_block.position = (self.next_block.position[0], -3)
 
     # Checks cell values of block. If its part of the tetromino, save it into the grid.
     def __map_block(self, block):
         for y in range(len(block.matrix[0])):
             for x in range(len(block.matrix)):
                 if block.matrix[y][x] != 0:
-                    self.grid[block.get_relative_y(y)][block.get_relative_x(x)] = block.block_type.value
+                    self.grid[block.get_relative_y(y)][block.get_relative_x(x)] = block.block_type
 
     # Checks each row in the grid, if it is completely filled, pop it and insert a new row at the top
     def __check_tetris(self):
@@ -166,16 +174,23 @@ class Grid:
     def update_block(self, debug, dt):
         # Do block stuff after we hit the tick timer value
         self.counter += dt
+        self.still_moving_counter += dt
         if self.counter >= self.tick:
             self.counter = 0
             if not self.__colliding(self.current_block, 0, 1):
                 self.current_block._move_down()
+            #elif self.still_moving_counter >= self.tick / 2:
             else:
+                self.still_moving_counter = 0
                 self.__map_block(self.current_block)
                 self.__check_tetris()
                 self.__create_block()
 
         self.current_block.draw(debug)
+        try:
+            self.next_block.draw(debug)
+        except:
+            pass
 
     # Draw grid lines and filled blocks
     def __draw_grid(self, debug):
@@ -218,7 +233,7 @@ class Grid:
                 self.score_list.pop(i)
                 break
         if len(self.block_list) == 0:
-            self.block_list = list(BlockType)
+            self.block_list = range(1,8)
 
     # Debug function, prints grid in readable format
     def print_grid(self):

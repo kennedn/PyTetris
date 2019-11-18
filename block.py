@@ -1,17 +1,5 @@
-from enum import Enum
 from copy import deepcopy
 import pygame
-
-
-# Enum of Tetromino types
-class BlockType(Enum):
-    I = 1
-    O = 2
-    T = 3
-    J = 4
-    L = 5
-    S = 6
-    Z = 7
 
 
 # Tetromino class, defines a single tetris piece.
@@ -23,7 +11,6 @@ class Block:
         self.block_size = block_size
         self.line_width = line_width
         self.matrix = self.__get_matrix(block_type)
-        self.trimmed_matrix = self.get_trimmed_matrix()
         self.position = self.__get_start_position(self.matrix)
         self.block_type = block_type
         self.width = len(self.matrix[0])
@@ -35,31 +22,31 @@ class Block:
     @staticmethod
     def __get_matrix(block_type):
 
-        if block_type == BlockType.I:
+        if block_type == 1:
             return [[0, 0, 0, 0],
                     [1, 1, 1, 1],
                     [0, 0, 0, 0],
                     [0, 0, 0, 0]]
-        elif block_type == BlockType.O:
+        elif block_type == 2:
             return [[1, 1],
                     [1, 1]]
-        elif block_type == BlockType.T:
+        elif block_type == 3:
             return [[0, 1, 0],
                     [1, 1, 1],
                     [0, 0, 0]]
-        elif block_type == BlockType.J:
+        elif block_type == 4:
             return [[1, 0, 0],
                     [1, 1, 1],
                     [0, 0, 0]]
-        elif block_type == BlockType.L:
+        elif block_type == 5:
             return [[0, 0, 1],
                     [1, 1, 1],
                     [0, 0, 0]]
-        elif block_type == BlockType.S:
+        elif block_type == 6:
             return [[0, 1, 1],
                     [1, 1, 0],
                     [0, 0, 0]]
-        elif block_type == BlockType.Z:
+        elif block_type == 7:
             return [[1, 1, 0],
                     [0, 1, 1],
                     [0, 0, 0]]
@@ -94,37 +81,9 @@ class Block:
     def get_relative_x(self, x):
         return self.position[0] + x
 
-    # Strip any blank rows and columns from the block matrix
-    def get_trimmed_matrix(self):
-        return_matrix = deepcopy(self.matrix)
-        return_matrix = self.__get_directional_trimmed_matrix(return_matrix)
-        return_matrix = self.get_next_rotation(return_matrix)
-        return_matrix = self.__get_directional_trimmed_matrix(return_matrix)
-        for j in range(3):
-            return_matrix = self.get_next_rotation(return_matrix)
-        return return_matrix
-
-    # Strip blank rows from matrix
-    @staticmethod
-    def __get_directional_trimmed_matrix(matrix):
-        y = 0
-        while y < len(matrix):
-            pop_row = True
-            for x in range(len(matrix[y])):
-                if matrix[y][x] != 0:
-                    pop_row = False
-                    break
-            if pop_row:
-                matrix.pop(y)
-                y = 0
-                continue
-            y += 1
-        return matrix
-
     # Flip 2d array 90 degrees to the right
     def _rotate(self):
         self.matrix = self.get_next_rotation(self.matrix)
-        self.trimmed_matrix = self.get_trimmed_matrix()
 
     # Rotates 2d array 90 degrees to the right. Reverse array order then use zip to turn columns into rows
     @staticmethod
@@ -181,4 +140,4 @@ class Block:
                 if self.matrix[y][x] == 0 and debug == 3 and rot_matrix[y][x] != 0:
                     pygame.draw.rect(self.screen, invert_color, cell_rect, self.line_width)
                 if self.matrix[y][x] != 0:
-                    pygame.draw.rect(self.screen, self.get_color(self.block_type.value), cell_rect, self.line_width)
+                    pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, self.line_width)
