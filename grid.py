@@ -3,6 +3,7 @@ from clamp import clamp
 from text_floater import TextFloater
 import random
 import pygame
+from time import sleep
 
 
 # Main Grid Function
@@ -179,7 +180,8 @@ class Grid:
             self.counter = 0
             if not self.__colliding(self.current_block, 0, 1):
                 self.current_block._move_down()
-            #elif self.still_moving_counter >= self.tick / 2:
+            elif self.__colliding(self.current_block,0,0):
+                self.grid = [[0 for x in range(self.block_width)] for y in range(self.block_height)]
             else:
                 self.still_moving_counter = 0
                 self.__map_block(self.current_block)

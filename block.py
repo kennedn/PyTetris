@@ -133,11 +133,15 @@ class Block:
                                         (self.position[1] + y) * self.block_size + self.y_offset + self.line_width,
                                         self.block_size - (self.line_width * 2),
                                         self.block_size - (self.line_width * 2))
-                invert_color = (220,150,220)
+                invert_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.x_offset + self.block_size / 3,
+                                        (self.position[1] + y) * self.block_size + self.y_offset + self.block_size / 3,
+                                        self.block_size / 3,
+                                        self.block_size / 3)
+                invert_color = self.get_color(self.block_type)
                 if self.matrix[y][x] == 0 and debug == 2:
-                    pygame.draw.rect(self.screen, invert_color, cell_rect, self.line_width)
+                    pygame.draw.rect(self.screen, invert_color, invert_rect)
 
                 if self.matrix[y][x] == 0 and debug == 3 and rot_matrix[y][x] != 0:
-                    pygame.draw.rect(self.screen, invert_color, cell_rect, self.line_width)
+                    pygame.draw.rect(self.screen, invert_color, invert_rect)
                 if self.matrix[y][x] != 0:
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, self.line_width)
