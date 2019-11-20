@@ -40,17 +40,9 @@ class Grid:
 
     # Choose a random tetromino and spawn at top
     def __create_block(self):
-        try:
-            self.current_block = self.next_block
-        except:
             self.current_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
                                     self.block_width, self.block_height,
-                                    self.block_size, self.block_line_width, self.x_offset, self.y_offset)
-        self.current_block.position = (self.current_block.position[0], 0)
-        self.next_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
-                                    self.block_width, self.block_height,
-                                    self.block_size, self.block_line_width, self.x_offset, self.y_offset)
-        self.next_block.position = (self.next_block.position[0], -3)
+                                    self.block_size, self.line_width, self.block_line_width, self.x_offset, self.y_offset)
 
     # Checks cell values of block. If its part of the tetromino, save it into the grid.
     def __map_block(self, block):
@@ -191,13 +183,10 @@ class Grid:
                 self.__create_block()
 
         self.current_block.draw(debug)
-        try:
-            self.next_block.draw(debug)
-        except:
-            pass
 
     # Draw grid lines and filled blocks
     def __draw_grid(self, debug):
+        self.screen.fill((0, 0, 0))
         # Draw a vertical line for each x block + 1
         for x in range(len(self.grid[0]) + 1):
             pygame.draw.line(self.screen, self.color, [x * self.block_size, 0],
@@ -214,21 +203,16 @@ class Grid:
             for x in range(len(self.grid[y])):
                 # Draw rectangles in cells with their appropriate color (based on what tetromino filled them)
                 if self.grid[y][x] != 0:
-                    pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),
-                                     pygame.Rect(self.block_line_width + x * self.block_size,
-                                                 self.block_line_width + y * self.block_size,
-                                                 self.block_size - (self.block_line_width * 2),
-                                                 self.block_size - (self.block_line_width * 2)), self.block_line_width)
+                    pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),Block.get_rect(x, y, self.block_size, self.line_width, 0.85), self.block_line_width)
                 # Overlay each cells value on the screen with a color that is human readable (inverted)
                 if debug >= 4:
                     text_surface = self.debug_font.render(str(self.grid[y][x]), True, (255,255,255))
                     self.screen.blit(text_surface, (
                         x * self.block_size + (self.block_size / 3),
                         y * self.block_size + (self.block_size / 3.5)))
-                self.display.blit(self.screen, (0, 0))
+                self.display.blit(self.screen, (self.x_offset, self.y_offset))
     # Main update for grid
     def update(self, debug, dt):
-        self.screen.fill((0, 0, 0))
         self.__draw_grid(debug)
         self.update_block(debug, dt)
         for i in range(len(self.score_list)):

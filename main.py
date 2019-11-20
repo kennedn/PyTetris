@@ -25,10 +25,11 @@ paused_font = pygame.font.SysFont('monospace', 50)
 
 # Screen Initialisation - will be clamped to minimum width x height to display grid
 pygame_info = pygame.display.Info()
-SCREEN_WIDTH = clamp((BLOCK_WIDTH * BLOCK_SIZE) + 1, pygame_info.current_w, 450)
-SCREEN_HEIGHT = clamp((BLOCK_HEIGHT * BLOCK_SIZE) + 1, pygame_info.current_h, 700)
-SCREEN_Y_OFFSET = SCREEN_HEIGHT - (BLOCK_HEIGHT * BLOCK_SIZE)
-SCREEN_X_OFFSET = 0 #SCREEN_WIDTH / 2 - (BLOCK_WIDTH * BLOCK_SIZE / 2)
+SCREEN_WIDTH = clamp((BLOCK_WIDTH * BLOCK_SIZE) + 1, pygame_info.current_w, 650)
+SCREEN_HEIGHT = clamp((BLOCK_HEIGHT * BLOCK_SIZE) + 1, pygame_info.current_h, 800)
+SCREEN_Y_OFFSET = 0#SCREEN_HEIGHT - (BLOCK_HEIGHT * BLOCK_SIZE)
+#SCREEN_X_OFFSET = #SCREEN_WIDTH / 2 - (BLOCK_WIDTH * BLOCK_SIZE / 2)
+SCREEN_X_OFFSET = 0#SCREEN_WIDTH - (BLOCK_WIDTH * BLOCK_SIZE)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("PyTetris")
 

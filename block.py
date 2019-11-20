@@ -4,19 +4,20 @@ import pygame
 
 # Tetromino class, defines a single tetris piece.
 class Block:
-    def __init__(self, screen, block_type, block_width, block_height, block_size, line_width, x_offset, y_offset):
+    def __init__(self, screen, block_type, block_width, block_height, block_size, grid_line_width, line_width, x_offset, y_offset):
         self.display = screen
         self.block_width = block_width
         self.block_height = block_height
         self.block_size = block_size
+        self.grid_line_width = grid_line_width
         self.line_width = line_width
         self.matrix = self.__get_matrix(block_type)
         self.position = self.__get_start_position(self.matrix)
         self.block_type = block_type
         self.width = len(self.matrix[0])
         self.height = len(self.matrix)
-        self.screen = pygame.Surface((self.width * self.block_size, self.height * self.block_size), pygame.SRCALPHA, 32)
-        self.screen = self.screen.convert_alpha()
+        self.screen = pygame.Surface((self.width * self.block_size, self.height * self.block_size))
+        self.screen.set_colorkey((0, 0, 0))
         self.x_offset = x_offset
         self.y_offset = y_offset
 
@@ -70,6 +71,13 @@ class Block:
             return 0, 0, 255  # Silver
         elif num == 7:
             return 0, 128, 0  # Green
+    # Generate a rectangle with grid line offset and scaler value
+    @staticmethod
+    def get_rect(x, y, block_size, grid_line_width, scale):
+        return pygame.Rect(x * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
+                            y * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
+                            block_size - grid_line_width - (block_size - (block_size * scale)),
+                            block_size - grid_line_width - (block_size - (block_size * scale)))
 
     # Calculate starting x position
     def __get_start_position(self, matrix):
@@ -128,23 +136,19 @@ class Block:
 
     # Draw each cell based on position and matrix
     def draw(self, debug):
+        self.screen.fill((0, 0, 0))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
             for x in range(len(self.matrix[y])):
-                cell_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.line_width,
-                                        (self.position[1] + y) * self.block_size + self.line_width,
-                                        self.block_size - (self.line_width * 2),
-                                        self.block_size - (self.line_width * 2))
-                invert_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.block_size / 3,
-                                        (self.position[1] + y) * self.block_size + self.block_size / 3,
-                                        self.block_size / 3,
-                                        self.block_size / 3)
-                invert_color = self.get_color(self.block_type)
+                cell_rect = self.get_rect(x, y, self.block_size, self.grid_line_width, 0.85)
+                debug_rect = self.get_rect(x, y, self.block_size, self.grid_line_width, 0.3)
+                debug_color = (255,255,255)
                 if self.matrix[y][x] == 0 and debug == 2:
-                    pygame.draw.rect(self.screen, invert_color, invert_rect)
+                    pygame.draw.rect(self.screen, debug_color, debug_rect, self.line_width)
 
-                if self.matrix[y][x] == 0 and debug == 3 and rot_matrix[y][x] != 0:
-                    pygame.draw.rect(self.screen, invert_color, invert_rect)
+                if rot_matrix[y][x] != 0 and debug == 3:
+                    pygame.draw.rect(self.screen, debug_color, debug_rect, self.line_width)
                 if self.matrix[y][x] != 0:
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, self.line_width)
-        self.display.blit(self.screen, (self.position[0] * self.block_size, self.position[1] * self.block_size))
+        self.display.blit(self.screen, (self.position[0] * self.block_size + self.x_offset, self.position[1] * self.block_size + self.y_offset))
+        #self.display.blit(self.screen, (0,0))
