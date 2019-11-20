@@ -5,7 +5,7 @@ import pygame
 # Tetromino class, defines a single tetris piece.
 class Block:
     def __init__(self, screen, block_type, block_width, block_height, block_size, line_width, x_offset, y_offset):
-        self.screen = screen
+        self.display = screen
         self.block_width = block_width
         self.block_height = block_height
         self.block_size = block_size
@@ -15,6 +15,8 @@ class Block:
         self.block_type = block_type
         self.width = len(self.matrix[0])
         self.height = len(self.matrix)
+        self.screen = pygame.Surface((self.width * self.block_size, self.height * self.block_size), pygame.SRCALPHA, 32)
+        self.screen = self.screen.convert_alpha()
         self.x_offset = x_offset
         self.y_offset = y_offset
 
@@ -129,12 +131,12 @@ class Block:
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
             for x in range(len(self.matrix[y])):
-                cell_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.x_offset + self.line_width,
-                                        (self.position[1] + y) * self.block_size + self.y_offset + self.line_width,
+                cell_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.line_width,
+                                        (self.position[1] + y) * self.block_size + self.line_width,
                                         self.block_size - (self.line_width * 2),
                                         self.block_size - (self.line_width * 2))
-                invert_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.x_offset + self.block_size / 3,
-                                        (self.position[1] + y) * self.block_size + self.y_offset + self.block_size / 3,
+                invert_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.block_size / 3,
+                                        (self.position[1] + y) * self.block_size + self.block_size / 3,
                                         self.block_size / 3,
                                         self.block_size / 3)
                 invert_color = self.get_color(self.block_type)
@@ -145,3 +147,4 @@ class Block:
                     pygame.draw.rect(self.screen, invert_color, invert_rect)
                 if self.matrix[y][x] != 0:
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, self.line_width)
+        self.display.blit(self.screen, (self.position[0] * self.block_size, self.position[1] * self.block_size))

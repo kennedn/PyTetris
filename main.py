@@ -94,4 +94,4 @@ while True:
         pause_pos = (SCREEN_WIDTH / 2 - pause_text.get_width() / 2, SCREEN_HEIGHT / 2 - pause_text.get_height() / 2)
         pygame.draw.rect(screen,(0,0,0,125),pygame.Rect(pause_pos,(pause_text.get_width(), pause_text.get_height())))
         screen.blit(pause_text, pause_pos)
-    pygame.display.update()
+    pygame.display.flip()

@@ -12,7 +12,9 @@ class Grid:
     def __init__(self, screen, debug_font, tick, score_timeout, score_font, line_color, line_width, block_line_width,
                  block_width, block_height,
                  block_size, x_offset, y_offset):
-        self.screen = screen
+        self.display = screen
+        self.screen = pygame.Surface(((block_width + 1) * block_size, (block_height + 1) * block_size))
+        self.screen.fill((0, 0, 0))
         self.block_width = block_width
         self.block_height = block_height
         self.block_size = block_size
@@ -41,11 +43,11 @@ class Grid:
         try:
             self.current_block = self.next_block
         except:
-            self.current_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
+            self.current_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
                                     self.block_width, self.block_height,
                                     self.block_size, self.block_line_width, self.x_offset, self.y_offset)
         self.current_block.position = (self.current_block.position[0], 0)
-        self.next_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
+        self.next_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)),
                                     self.block_width, self.block_height,
                                     self.block_size, self.block_line_width, self.x_offset, self.y_offset)
         self.next_block.position = (self.next_block.position[0], -3)
@@ -196,16 +198,15 @@ class Grid:
 
     # Draw grid lines and filled blocks
     def __draw_grid(self, debug):
-
         # Draw a vertical line for each x block + 1
         for x in range(len(self.grid[0]) + 1):
-            pygame.draw.line(self.screen, self.color, [self.x_offset + x * self.block_size, self.y_offset],
-                             [self.x_offset + x * self.block_size, self.y_offset + self.block_size * self.block_height],
+            pygame.draw.line(self.screen, self.color, [x * self.block_size, 0],
+                             [x * self.block_size, self.block_size * self.block_height],
                              self.line_width)
         # Draw a horizontal line for each y block + 1
         for y in range(len(self.grid) + 1):
-            pygame.draw.line(self.screen, self.color, [self.x_offset, self.y_offset + y * self.block_size],
-                             [self.x_offset + self.block_size * self.block_width, self.y_offset + y * self.block_size],
+            pygame.draw.line(self.screen, self.color, [0, y * self.block_size],
+                             [self.block_size * self.block_width, y * self.block_size],
                              self.line_width)
 
         # Check if each block is filled, if it is draw in it
@@ -214,19 +215,20 @@ class Grid:
                 # Draw rectangles in cells with their appropriate color (based on what tetromino filled them)
                 if self.grid[y][x] != 0:
                     pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),
-                                     pygame.Rect(self.block_line_width + self.x_offset + x * self.block_size,
-                                                 self.block_line_width + self.y_offset + y * self.block_size,
+                                     pygame.Rect(self.block_line_width + x * self.block_size,
+                                                 self.block_line_width + y * self.block_size,
                                                  self.block_size - (self.block_line_width * 2),
                                                  self.block_size - (self.block_line_width * 2)), self.block_line_width)
                 # Overlay each cells value on the screen with a color that is human readable (inverted)
                 if debug >= 4:
                     text_surface = self.debug_font.render(str(self.grid[y][x]), True, (255,255,255))
                     self.screen.blit(text_surface, (
-                        self.x_offset + x * self.block_size + (self.block_size / 3),
-                        self.y_offset + y * self.block_size + (self.block_size / 3.5)))
-
+                        x * self.block_size + (self.block_size / 3),
+                        y * self.block_size + (self.block_size / 3.5)))
+                self.display.blit(self.screen, (0, 0))
     # Main update for grid
     def update(self, debug, dt):
+        self.screen.fill((0, 0, 0))
         self.__draw_grid(debug)
         self.update_block(debug, dt)
         for i in range(len(self.score_list)):
