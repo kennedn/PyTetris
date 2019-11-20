@@ -22,6 +22,8 @@ while True:
                 grid.still_moving_counter = 0
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 grid.rotate_block(grid.current_block)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                grid.move_block_to_bottom()
             # Move block right
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 grid.move_block_right()
@@ -62,7 +64,7 @@ while True:
         screen.fill(BACK_COLOR)
         grid.update(DEBUG, deltaTime)
     else:
-        pause_text = paused_font.render("Pause", True, (255,255,255))
+        pause_text = PAUSED_FONT.render("Pause", True, (255,255,255))
         pause_pos = (SCREEN_WIDTH / 2 - pause_text.get_width() / 2, SCREEN_HEIGHT / 2 - pause_text.get_height() / 2)
         pygame.draw.rect(screen,(0,0,0,125),pygame.Rect(pause_pos,(pause_text.get_width(), pause_text.get_height())))
         screen.blit(pause_text, pause_pos)

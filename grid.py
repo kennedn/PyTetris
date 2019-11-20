@@ -147,6 +147,11 @@ class Grid:
         if not self.__colliding(self.current_block, 1, 0):
             self.current_block.move_right()
 
+    # Keep pushing the block down until we would collide
+    def move_block_to_bottom(self):
+        while not self.__colliding(self.current_block, 0, 1):
+                self.current_block._move_down()
+
     # Every TICK check the state of the block and react accordingly
     def update_block(self, debug, dt):
         # Do block stuff after we hit the tick timer value
