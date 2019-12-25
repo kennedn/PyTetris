@@ -2,7 +2,7 @@ from block import Block
 from text_floater import TextFloater
 import random
 from globals import *
-
+from copy import deepcopy
 
 # Main Grid Function
 # Draw Grid, keep track of grid values and spawn tetrominoes
@@ -93,49 +93,51 @@ class Grid:
     # This function also 'bumps' the block if its next rotation would be out of bounds, instead of not rotating
     def rotate_block(self, block):
         # Get a 90 degree rotated matrix
-        block_matrix = self.current_block.get_next_rotation(self.current_block.matrix)
+        temp_block = deepcopy(block)
+        block_matrix = block.get_next_rotation(temp_block.matrix)
+        temp_block._rotate()
         left_counter = 0
         right_counter = 0
         bottom_counter = 0
         for y in range(len(block_matrix[0])):
             for x in range(len(block_matrix)):
                 # Calculate the bump amount if the rotation will be down OOB
-                if block_matrix[y][x] != 0 and block.get_relative_y(y) > BLOCK_HEIGHT - 1:
-                    if block.get_relative_y(y) - (BLOCK_HEIGHT - 1) > bottom_counter:
-                        bottom_counter = block.get_relative_y(y) - (BLOCK_HEIGHT - 1)
+                if block_matrix[y][x] != 0 and temp_block.get_relative_y(y) > BLOCK_HEIGHT - 1:
+                    if temp_block.get_relative_y(y) - (BLOCK_HEIGHT - 1) > bottom_counter:
+                        bottom_counter = temp_block.get_relative_y(y) - (BLOCK_HEIGHT - 1)
                 # Calculate the bump amount if the rotation will be right OOB
-                elif block_matrix[y][x] != 0 and block.get_relative_x(x) > BLOCK_WIDTH - 1:
-                    if block.get_relative_x(x) - (BLOCK_WIDTH - 1) > right_counter:
-                        right_counter = block.get_relative_x(x) - (BLOCK_WIDTH - 1)
+                elif block_matrix[y][x] != 0 and temp_block.get_relative_x(x) > BLOCK_WIDTH - 1:
+                    if temp_block.get_relative_x(x) - (BLOCK_WIDTH - 1) > right_counter:
+                        right_counter = temp_block.get_relative_x(x) - (BLOCK_WIDTH - 1)
                 # Calculate the bump amount if the rotation will be left OOB
-                elif block_matrix[y][x] != 0 and block.get_relative_x(x) < 0:
-                    if block.get_relative_x(x) < left_counter:
-                        left_counter = block.get_relative_x(x)
+                elif block_matrix[y][x] != 0 and temp_block.get_relative_x(x) < 0:
+                    if temp_block.get_relative_x(x) < left_counter:
+                        left_counter = temp_block.get_relative_x(x)
         # Bump right x amount of times
         if left_counter != 0:
             for x in range(abs(left_counter)):
-                self.current_block.move_right()
+                temp_block.move_right()
         # Bump left x amount of times
         elif right_counter != 0:
             for x in range(right_counter):
-                self.current_block.move_left()
+                temp_block.move_left()
         # Bump up x amount of times
         elif bottom_counter != 0:
             for x in range(bottom_counter):
-                self.current_block.move_up()
+                temp_block.move_up()
         # If we aren't bumping, check the rotation won't intersect any other filled cells
-        else:
-            # Check for cells to right
-            if self.__colliding(self.current_block, 1, 0, block_matrix):
-                return
-            # Check for cells to the left
-            if self.__colliding(self.current_block, -1, 0, block_matrix):
-                return
-            # Check for cells inside of self
-            if self.__colliding(self.current_block, 0, 0, block_matrix):
-                return
+        # Check for cells to right
+        if self.__colliding(temp_block, 1, 0, block_matrix):
+            return
+        # Check for cells to the left
+        if self.__colliding(temp_block, -1, 0,block_matrix):
+            return
+        # Check for cells inside of self
+        if self.__colliding(temp_block, 0, 0, block_matrix):
+            return
         # If we got past the Guantlet of collision detection, rotate
-        self.current_block._rotate()
+        self.current_block.position = temp_block.position
+        self.current_block.matrix = temp_block.matrix
 
     # Move left if we won't collide with anything
     def move_block_left(self):
