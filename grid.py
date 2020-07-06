@@ -3,28 +3,44 @@ from text_floater import TextFloater
 import random
 from globals import *
 from copy import deepcopy
+from polyfill import enum
+from time import sleep
 
 # Main Grid Function
 # Draw Grid, keep track of grid values and spawn tetrominoes
 class Grid:
+
     def __init__(self, main_surface):
         self.display = main_surface
         self.screen = pygame.Surface(((BLOCK_WIDTH + 1) * BLOCK_SIZE, (BLOCK_HEIGHT + 1) * BLOCK_SIZE))
         self.screen.fill((0, 0, 0))
         self.counter = 0
         self.still_moving_counter = 0
-        self.score_list = []
+
+        self.score = 0
+        self.level = 1
+        self.lines = 0
+        self._set_tick()
+
+        self.GridState = enum(PLAYING=0, GAMEOVER=1)
+        self.state = self.GridState.PLAYING
         # Short hand 2d array initialised to 0
         self.grid = [[0 for x in range(BLOCK_WIDTH)] for y in range(BLOCK_HEIGHT)]
 
         # Make a list of all 7 block types
         self.block_list = range(1,8)
+        self.current_block = None
+        self.next_block = None
         # Generate random tetromino at top of screen
         self.__create_block()
 
     # Choose a random tetromino and spawn at top
     def __create_block(self):
+        if self.next_block is not None:
+            self.current_block = self.next_block
+        else:
             self.current_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
+        self.next_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
 
     # Checks cell values of block. If its part of the tetromino, save it into the grid.
     def __map_block(self, block):
@@ -35,38 +51,25 @@ class Grid:
 
     # Checks each row in the grid, if it is completely filled, pop it and insert a new row at the top
     def __check_tetris(self):
-        score_counter = []
+        popped_lines = 0
         for y in range(len(self.grid)):
             # Pop the row if each cell isn't 0
-            if all(self.grid[y][x] != 0 for x in range(len(self.grid[y]))):
+            if all(cell != 0 for cell in self.grid[y]):
                 self.grid.pop(y)
                 self.grid.insert(0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-                score_counter.append(y)
-        self.display_score(score_counter)
+                popped_lines += 1
+        self.lines += self._calc_lines(popped_lines)
+        self.score += self._calc_score(popped_lines)
 
-    def display_score(self, rows):
-        score = 0
-        if len(rows) == 1:
-            score = 120
-        elif len(rows) == 2:
-            score = 300
-        elif len(rows) == 3:
-            score = 900
-        else:
-            score = 3600
-        if len(rows) > 0:
-            # print("Scored " + str(score) + " points")
-            self.score_list.append(TextFloater(self.screen, SCORE_TIMEOUT, SCORE_FONT,
-                                               # Block.get_color(self.current_block.block_type.value), score,
-                                               (255, 255, 255), score,
-                                               clamp(SCREEN_X_OFFSET + BLOCK_SIZE,
-                                                     SCREEN_X_OFFSET + 10 + (BLOCK_WIDTH * (BLOCK_SIZE - 1)),
-                                                     SCREEN_X_OFFSET + ((self.current_block.position[0] + (
-                                                             self.current_block.width / 2)) * BLOCK_SIZE)),
-                                               min(SCREEN_Y_OFFSET + y * BLOCK_SIZE for y in rows)))
+    def _set_tick(self):
+        self.tick = (0.8 - ((self.level - 1) * 0.007)) ** (self.level - 1) * 1000
+        if DEBUG >= 2:
+            print("Tick: {}".format(self.tick))
 
-            # Check if a block is colliding with filled grid cells
-            # Optionally specify a custom matrix
+    def _check_levelup(self):
+        if self.lines >= self.level * 5:
+            self.level += 1
+            self._set_tick()
 
     def __colliding(self, block, x_modifier, y_modifier, block_matrix=0):
         # Map blocks matrix if no custom one specified
@@ -89,7 +92,31 @@ class Grid:
 
         return False
 
-    # Shit ton of collision detection to ensure a rotation will not collide.
+    def _calc_score(self, lines):
+        if lines == 1:
+            return 40 * (self.level + 1)
+        elif lines == 2:
+            return 100 * (self.level + 1)
+        elif lines == 3:
+            return 300 * (self.level + 1)
+        elif lines == 4:
+            return 1200 * (self.level + 1)
+        else:
+            return 0
+
+    def _calc_lines(self, lines):
+        if lines == 1:
+            return 1
+        elif lines == 2:
+            return 3
+        elif lines == 3:
+            return 5
+        elif lines == 4:
+            return 8
+        else:
+            return 0
+
+    # Bucket load of collision detection to ensure a rotation will not collide.
     # This function also 'bumps' the block if its next rotation would be out of bounds, instead of not rotating
     def rotate_block(self, block):
         # Get a 90 degree rotated matrix
@@ -152,29 +179,30 @@ class Grid:
     # Keep pushing the block down until we would collide
     def move_block_to_bottom(self):
         while not self.__colliding(self.current_block, 0, 1):
-                self.current_block._move_down()
+                self.current_block.move_down()
 
     # Every TICK check the state of the block and react accordingly
     def update_block(self, debug, dt):
         # Do block stuff after we hit the tick timer value
         self.counter += dt
         self.still_moving_counter += dt
-        if self.counter >= TICK:
+        if self.counter >= self.tick:
             self.counter = 0
+            # If we can move down move down
             if not self.__colliding(self.current_block, 0, 1):
-                self.current_block._move_down()
-            elif self.__colliding(self.current_block,0,0):
-                self.grid = [[0 for x in range(BLOCK_WIDTH)] for y in range(BLOCK_HEIGHT)]
+                self.current_block.move_down()
+            # If we are inside another block, its game over
+            elif self.__colliding(self.current_block, 0, 0):
+                self.state = self.GridState.GAMEOVER
             else:
                 self.still_moving_counter = 0
                 self.__map_block(self.current_block)
                 self.__check_tetris()
+                self._check_levelup()
                 self.__create_block()
 
-        self.current_block.draw(debug)
-
     # Draw grid lines and filled blocks
-    def __draw_grid(self, debug):
+    def _draw_grid(self, debug):
         self.screen.fill((0, 0, 0))
         # Draw a vertical line for each x block + 1
         for x in range(len(self.grid[0]) + 1):
@@ -200,17 +228,15 @@ class Grid:
                         x * BLOCK_SIZE + (BLOCK_SIZE / 3),
                         y * BLOCK_SIZE + (BLOCK_SIZE / 3.5)))
                 self.display.blit(self.screen, (SCREEN_X_OFFSET, SCREEN_Y_OFFSET))
+
+        self.current_block.draw(debug)
+
     # Main update for grid
     def update(self, debug, dt):
-        self.__draw_grid(debug)
+        self._draw_grid(debug)
         self.update_block(debug, dt)
-        for i in range(len(self.score_list)):
-            self.score_list[i].update(dt)
-            if not self.score_list[i].alive:
-                self.score_list.pop(i)
-                break
         if len(self.block_list) == 0:
-            self.block_list = range(1,8)
+            self.block_list = range(1, 8)
 
     # Debug function, prints grid in readable format
     def print_grid(self):

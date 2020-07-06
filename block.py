@@ -92,7 +92,7 @@ class Block:
     def get_next_rotation(matrix):
         return list(zip(*matrix[::-1]))
 
-    def _move_down(self):
+    def move_down(self):
         self.position = (self.position[0], self.position[1] + 1)
 
     def move_up(self):
@@ -127,7 +127,7 @@ class Block:
         print("")
 
     # Draw each cell based on position and matrix
-    def draw(self, debug):
+    def draw(self, debug, to_screen=True):
         self.screen.fill((124, 0, 124))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
@@ -144,5 +144,6 @@ class Block:
                 if self.matrix[y][x] != 0:
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
 
-        self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + SCREEN_X_OFFSET,
+        if to_screen:
+            self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + SCREEN_X_OFFSET,
                                         self.position[1] * BLOCK_SIZE + SCREEN_Y_OFFSET))
