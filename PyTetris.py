@@ -1,9 +1,9 @@
 #!/usr/bin/python
 import pygame
-from grid import Grid
-from osd import OSD
-from globals import *
-from polyfill import enum
+from modules.grid import Grid
+from modules.osd import OSD
+from modules.globals import *
+from modules.polyfill import enum
 
 GameState = enum(PAUSED=0, GAMEOVER=1, PLAYING=2)
 game_state = GameState.PAUSED
