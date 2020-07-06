@@ -1,10 +1,7 @@
 from block import Block
-from text_floater import TextFloater
 import random
 from globals import *
-from copy import deepcopy
 from polyfill import enum
-from time import sleep
 
 # Main Grid Function
 # Draw Grid, keep track of grid values and spawn tetrominoes
@@ -28,7 +25,7 @@ class Grid:
         self.grid = [[0 for x in range(BLOCK_WIDTH)] for y in range(BLOCK_HEIGHT)]
 
         # Make a list of all 7 block types
-        self.block_list = range(1,8)
+        self.block_list = list(range(1, 8))
         self.current_block = None
         self.next_block = None
         # Generate random tetromino at top of screen
@@ -119,8 +116,11 @@ class Grid:
     # Bucket load of collision detection to ensure a rotation will not collide.
     # This function also 'bumps' the block if its next rotation would be out of bounds, instead of not rotating
     def rotate_block(self, block):
-        # Get a 90 degree rotated matrix
-        temp_block = deepcopy(block)
+        # Create clone of current_block so we can simulate some rotations and collisions
+        temp_block = Block(self.display, self.current_block.block_type)
+        temp_block.matrix = self.current_block.matrix
+        temp_block.position = self.current_block.position
+
         block_matrix = block.get_next_rotation(temp_block.matrix)
         temp_block._rotate()
         left_counter = 0
@@ -166,6 +166,9 @@ class Grid:
         self.current_block.position = temp_block.position
         self.current_block.matrix = temp_block.matrix
 
+    def get_cell(self, position):
+        return (clamp(0, SCREEN_WIDTH, ((-SCREEN_X_OFFSET + position[0]) / BLOCK_SIZE)),
+                        clamp(0, SCREEN_HEIGHT, ((-SCREEN_Y_OFFSET + position[1]) / BLOCK_SIZE)))
     # Move left if we won't collide with anything
     def move_block_left(self):
         if not self.__colliding(self.current_block, -1, 0):
@@ -176,10 +179,15 @@ class Grid:
         if not self.__colliding(self.current_block, 1, 0):
             self.current_block.move_right()
 
+    def move_block_down(self):
+        if not self.__colliding(self.current_block, 0, 1):
+            self.current_block.move_down()
+
     # Keep pushing the block down until we would collide
     def move_block_to_bottom(self):
-        while not self.__colliding(self.current_block, 0, 1):
-                self.current_block.move_down()
+        if not self.__colliding(self.current_block, 0, 1):
+            self.current_block.move_down()
+            self.move_block_to_bottom()
 
     # Every TICK check the state of the block and react accordingly
     def update_block(self, debug, dt):
@@ -222,7 +230,7 @@ class Grid:
                 if self.grid[y][x] != 0:
                     pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),Block.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.85), BLOCK_LINE_WIDTH)
                 # Overlay each cells value on the screen with a color that is human readable (inverted)
-                if debug >= 4:
+                if debug == 5:
                     text_surface = DEBUG_FONT.render(str(self.grid[y][x]), True, (255,255,255))
                     self.screen.blit(text_surface, (
                         x * BLOCK_SIZE + (BLOCK_SIZE / 3),
@@ -236,7 +244,7 @@ class Grid:
         self._draw_grid(debug)
         self.update_block(debug, dt)
         if len(self.block_list) == 0:
-            self.block_list = range(1, 8)
+            self.block_list = list(range(1, 8))
 
     # Debug function, prints grid in readable format
     def print_grid(self):

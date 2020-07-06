@@ -10,20 +10,24 @@ BLOCK_LINE_WIDTH = 3        # How thick is a blocks line
 GRID_LINE_WIDTH = 2         # How thick is the grids line
 TICK = 600                  # Determines when the block moves down one row
 FPS = 60                    # Frames per seconds
-SPEED_MULTIPLIER = 6        # How quickly should the block fall when pressing down * BLOCK_TICK
+SPEED_MULTIPLIER = 7        # How quickly should the block fall when pressing down * BLOCK_TICK
 SCORE_TIMEOUT = 700         # How quickly should a tetris score show for
 DEBUG = 1                   # Debug level, higher values do cooler things
 SCREEN_Y_OFFSET = 50#SCREEN_HEIGHT - (BLOCK_HEIGHT * BLOCK_SIZE)
 SCREEN_X_OFFSET = 0#SCREEN_WIDTH - (BLOCK_WIDTH * BLOCK_SIZE)
+DOUBLE_CLICK_TIMEOUT = 150
+MOUSE_DRAG_THRESHOLD_X = BLOCK_SIZE * .5
+MOUSE_DRAG_THRESHOLD_Y = BLOCK_SIZE * .6
 
 pygame.init()
 pygame.font.init()
 
 # Font definitions
 DEBUG_FONT = pygame.font.SysFont('monospace', 20)
-SCORE_FONT = pygame.font.SysFont('monospace', 20)
 PAUSED_FONT = pygame.font.SysFont('monospace', 30)
 PAUSED_FONT.set_bold(True)
+PAUSED_SUB_FONT = pygame.font.SysFont('monospace', 20)
+PAUSED_SUB_FONT.set_bold(True)
 OSD_FONT = pygame.font.SysFont('monospace', 20)
 OSD_FONT.set_bold(True)
 # Screen Initialisation - will be clamped to minimum width x height to display grid

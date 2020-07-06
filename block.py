@@ -7,6 +7,7 @@ class Block:
         self.display = main_surface
         self.matrix = self.__get_matrix(block_type)
         self.position = self.__get_start_position(self.matrix)
+        self.center = (int(len(self.matrix[0]) / 2), int(len(self.matrix[1]) / 2))
         self.block_type = block_type
         self.width = len(self.matrix[0])
         self.height = len(self.matrix)
@@ -135,11 +136,11 @@ class Block:
                 cell_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.85)
                 debug_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.3)
                 debug_color = (255,255,255)
-                if self.matrix[y][x] == 0 and debug == 2:
+                if self.matrix[y][x] == 0 and debug == 3:
                     pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
                     self.screen.set_colorkey((1,1,1))
 
-                if rot_matrix[y][x] != 0 and debug == 3:
+                if rot_matrix[y][x] != 0 and debug == 4:
                     pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
                 if self.matrix[y][x] != 0:
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
