@@ -1,22 +1,18 @@
-from copy import deepcopy
-import pygame
+from globals import *
 
 
 # Tetromino class, defines a single tetris piece.
 class Block:
-    def __init__(self, screen, block_type, block_width, block_height, block_size, line_width, x_offset, y_offset):
-        self.screen = screen
-        self.block_width = block_width
-        self.block_height = block_height
-        self.block_size = block_size
-        self.line_width = line_width
+    def __init__(self, main_surface, block_type):
+        self.display = main_surface
         self.matrix = self.__get_matrix(block_type)
         self.position = self.__get_start_position(self.matrix)
+        self.center = (int(len(self.matrix[0]) / 2), int(len(self.matrix[1]) / 2))
         self.block_type = block_type
         self.width = len(self.matrix[0])
         self.height = len(self.matrix)
-        self.x_offset = x_offset
-        self.y_offset = y_offset
+        self.screen = pygame.Surface((self.width * BLOCK_SIZE, self.height * BLOCK_SIZE))
+        self.screen.set_colorkey((124, 0, 124))
 
     # Defines each type of Tetromino, returns a 2d array of type block_type
     @staticmethod
@@ -57,21 +53,28 @@ class Block:
         if num == 1:
             return 255, 0, 0  # Red
         elif num == 2:
-            return 0, 255, 255  # Magenta
+            return 0, 255, 255  # Cyan
         elif num == 3:
             return 184, 134, 11  # Dark Gold
         elif num == 4:
-            return 255, 0, 255  # Cyan
+            return 255, 0, 255  # Magenta
         elif num == 5:
             return 255, 255, 0  # Blue
         elif num == 6:
             return 0, 0, 255  # Silver
         elif num == 7:
             return 0, 128, 0  # Green
+    # Generate a rectangle with grid line offset and scaler value
+    @staticmethod
+    def get_rect(x, y, block_size, grid_line_width, scale):
+        return pygame.Rect(x * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
+                            y * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
+                            block_size - grid_line_width - (block_size - (block_size * scale)),
+                            block_size - grid_line_width - (block_size - (block_size * scale)))
 
     # Calculate starting x position
     def __get_start_position(self, matrix):
-        return int(self.block_width / 2 - (len(matrix[0]) / 2)), 0
+        return int(BLOCK_WIDTH / 2 - (len(matrix[0]) / 2)), 0
 
     # Calculate world bound y position
     def get_relative_y(self, y):
@@ -90,7 +93,7 @@ class Block:
     def get_next_rotation(matrix):
         return list(zip(*matrix[::-1]))
 
-    def _move_down(self):
+    def move_down(self):
         self.position = (self.position[0], self.position[1] + 1)
 
     def move_up(self):
@@ -115,7 +118,7 @@ class Block:
     def hit_right_wall(self):
         for y in range(len(self.matrix[0])):
             for x in range(len(self.matrix)):
-                if self.matrix[y][x] != 0 and self.get_relative_x(x) >= self.block_width - 1:
+                if self.matrix[y][x] != 0 and self.get_relative_x(x) >= BLOCK_WIDTH - 1:
                     return True
 
     # print an ascii representation of the block matrix
@@ -125,23 +128,23 @@ class Block:
         print("")
 
     # Draw each cell based on position and matrix
-    def draw(self, debug):
+    def draw(self, debug, to_screen=True):
+        self.screen.fill((124, 0, 124))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
             for x in range(len(self.matrix[y])):
-                cell_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.x_offset + self.line_width,
-                                        (self.position[1] + y) * self.block_size + self.y_offset + self.line_width,
-                                        self.block_size - (self.line_width * 2),
-                                        self.block_size - (self.line_width * 2))
-                invert_rect = pygame.Rect((self.position[0] + x) * self.block_size + self.x_offset + self.block_size / 3,
-                                        (self.position[1] + y) * self.block_size + self.y_offset + self.block_size / 3,
-                                        self.block_size / 3,
-                                        self.block_size / 3)
-                invert_color = self.get_color(self.block_type)
-                if self.matrix[y][x] == 0 and debug == 2:
-                    pygame.draw.rect(self.screen, invert_color, invert_rect)
+                cell_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.85)
+                debug_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.3)
+                debug_color = (255,255,255)
+                if self.matrix[y][x] == 0 and debug == 3:
+                    pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
+                    self.screen.set_colorkey((1,1,1))
 
-                if self.matrix[y][x] == 0 and debug == 3 and rot_matrix[y][x] != 0:
-                    pygame.draw.rect(self.screen, invert_color, invert_rect)
+                if rot_matrix[y][x] != 0 and debug == 4:
+                    pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
                 if self.matrix[y][x] != 0:
-                    pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, self.line_width)
+                    pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
+
+        if to_screen:
+            self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + SCREEN_X_OFFSET,
+                                        self.position[1] * BLOCK_SIZE + SCREEN_Y_OFFSET))
