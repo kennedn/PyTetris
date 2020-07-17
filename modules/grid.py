@@ -17,6 +17,7 @@ class Grid:
         self.score = 0
         self.level = 1
         self.lines = 0
+        self.changed_values = []
         self._set_tick()
 
         self.GridState = enum(PLAYING=0, GAMEOVER=1)
@@ -115,13 +116,13 @@ class Grid:
 
     # Bucket load of collision detection to ensure a rotation will not collide.
     # This function also 'bumps' the block if its next rotation would be out of bounds, instead of not rotating
-    def rotate_block(self, block):
+    def rotate_block(self):
         # Create clone of current_block so we can simulate some rotations and collisions
         temp_block = Block(self.display, self.current_block.block_type)
         temp_block.matrix = self.current_block.matrix
         temp_block.position = self.current_block.position
 
-        block_matrix = block.get_next_rotation(temp_block.matrix)
+        block_matrix = self.current_block.get_next_rotation(temp_block.matrix)
         temp_block._rotate()
         left_counter = 0
         right_counter = 0
@@ -167,7 +168,7 @@ class Grid:
         self.current_block.matrix = temp_block.matrix
 
     def get_cell(self, position):
-        return (clamp(0, SCREEN_WIDTH, ((-SCREEN_X_OFFSET + position[0]) / BLOCK_SIZE)),
+        return (clamp(0, SCREEN_WIDTH, ((-0 + position[0]) / BLOCK_SIZE)),
                         clamp(0, SCREEN_HEIGHT, ((-SCREEN_Y_OFFSET + position[1]) / BLOCK_SIZE)))
     # Move left if we won't collide with anything
     def move_block_left(self):
@@ -199,15 +200,15 @@ class Grid:
             # If we can move down move down
             if not self.__colliding(self.current_block, 0, 1):
                 self.current_block.move_down()
-            # If we are inside another block, its game over
-            elif self.__colliding(self.current_block, 0, 0):
-                self.state = self.GridState.GAMEOVER
             else:
                 self.still_moving_counter = 0
                 self.__map_block(self.current_block)
                 self.__check_tetris()
                 self._check_levelup()
                 self.__create_block()
+
+            if self.__colliding(self.current_block, 0, 0):
+                self.state = self.GridState.GAMEOVER
 
     # Draw grid lines and filled blocks
     def _draw_grid(self, debug):
@@ -235,7 +236,7 @@ class Grid:
                     self.screen.blit(text_surface, (
                         x * BLOCK_SIZE + (BLOCK_SIZE / 3),
                         y * BLOCK_SIZE + (BLOCK_SIZE / 3.5)))
-                self.display.blit(self.screen, (SCREEN_X_OFFSET, SCREEN_Y_OFFSET))
+                self.display.blit(self.screen, (0, SCREEN_Y_OFFSET))
 
         self.current_block.draw(debug)
 

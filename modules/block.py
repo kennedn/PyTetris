@@ -1,5 +1,4 @@
-from modules.globals import *
-
+from globals import *
 
 # Tetromino class, defines a single tetris piece.
 class Block:
@@ -11,8 +10,9 @@ class Block:
         self.block_type = block_type
         self.width = len(self.matrix[0])
         self.height = len(self.matrix)
-        self.screen = pygame.Surface((self.width * BLOCK_SIZE, self.height * BLOCK_SIZE))
-        self.screen.set_colorkey((124, 0, 124))
+        self.screen = pygame.Surface((self.width * BLOCK_SIZE, self.height * BLOCK_SIZE), pygame.SRCALPHA)
+        self.screen = self.screen.convert_alpha()
+        #self.screen.set_colorkey((128, 0, 128))
 
     # Defines each type of Tetromino, returns a 2d array of type block_type
     @staticmethod
@@ -91,7 +91,7 @@ class Block:
     # Rotates 2d array 90 degrees to the right. Reverse array order then use zip to turn columns into rows
     @staticmethod
     def get_next_rotation(matrix):
-        return list(zip(*matrix[::-1]))
+        return list(zip(*reversed(matrix)))
 
     def move_down(self):
         self.position = (self.position[0], self.position[1] + 1)
@@ -129,7 +129,7 @@ class Block:
 
     # Draw each cell based on position and matrix
     def draw(self, debug, to_screen=True):
-        self.screen.fill((124, 0, 124))
+        self.screen.fill((128, 0, 128, 0))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
             for x in range(len(self.matrix[y])):
@@ -146,5 +146,5 @@ class Block:
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
 
         if to_screen:
-            self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + SCREEN_X_OFFSET,
+            self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + 0,
                                         self.position[1] * BLOCK_SIZE + SCREEN_Y_OFFSET))

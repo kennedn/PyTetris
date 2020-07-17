@@ -2,23 +2,79 @@
 import pygame
 from modules.grid import Grid
 from modules.osd import OSD
+from modules.button import Button
 from modules.globals import *
 from modules.polyfill import enum
 
-GameState = enum(PAUSED=0, GAMEOVER=1, PLAYING=2)
-game_state = GameState.PAUSED
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption(CAPTION)
-grid = Grid(screen)
-osd = OSD(screen, grid.next_block, pygame.Rect(0, 0, SCREEN_WIDTH, 50), 2, 5, 3, 6,  GRID_COLOR)
 clock = pygame.time.Clock()
+GameState = enum(PAUSED=0, GAMEOVER=1, PLAYING=2)
+game_state = None
+grid = None
+osd = OSD(screen, pygame.Rect(0, 0, SCREEN_WIDTH - OSD_WIDTH, OSD_HEIGHT), 2, 5, 3, 6,  GRID_COLOR)
+
+
+def pause_toggle():
+    global game_state
+    game_state = GameState.PLAYING if game_state != GameState.PLAYING else GameState.PAUSED
+
+
+def restart():
+    global grid
+    global down_held
+    global game_state
+    grid = Grid(screen)
+    attach_buttons()
+    down_held = False
+    game_state = GameState.PLAYING
+
+# Button definitions, normal buttons should only call their function during PLAYING.
+# Admin buttons should be activated during any gamestate.
+# Must be run at restart as a new grid object is generated, invalidating some function calls
+buttons_admin = []
+buttons = []
+def attach_buttons():
+    global buttons_admin
+    global buttons
+    buttons_admin = []
+    buttons = []
+    buttons_admin.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+                                pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, BUTTON_SIZE,
+                                            BUTTON_SIZE, BUTTON_SIZE), 5,  5, [0, 2], pause_toggle))
+    buttons_admin.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+                                pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, 0,
+                                            BUTTON_SIZE, BUTTON_SIZE), 5,  6, [0, 1, 2], restart))
+    buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+                          pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 5, BUTTON_SIZE,
+                                      BUTTON_SIZE), 5,  2, [2], grid.move_block_left))
+    buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+                          pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 4, BUTTON_SIZE,
+                                      BUTTON_SIZE), 5,  1, [2], grid.move_block_right))
+    buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+                          pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 3, BUTTON_SIZE,
+                                      BUTTON_SIZE), 5,  0, [2], grid.rotate_block))
+    buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+                          pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 2, BUTTON_SIZE,
+                                      BUTTON_SIZE), 5,  3, [2], grid.move_block_down))
+    buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+                          pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE, BUTTON_SIZE,
+                                      BUTTON_SIZE), 5,  4, [2], grid.move_block_to_bottom))
+
+# Call restart to initialise start state
+restart()
+# Update game_state and perform one draw call to osd and grid so that pause screen draws correct objects
+game_state = GameState.PAUSED
+osd.update_values(grid.score, grid.level, grid.next_block)
 grid._draw_grid(DEBUG)
 text_display_counter = 0
-double_click_counter = 0
-drag_event_start = None
-down_held = False
-while True:
+def run():
+    global DEBUG
+    global game_state
+    global text_display_counter
+    global down_held
+    global grid
+    global osd
     deltaTime = clock.tick(FPS)
     # Keybinds
     for event in pygame.event.get():
@@ -31,7 +87,7 @@ while True:
                 DEBUG = min(DEBUG + 1, 10)
                 print("Debug level = {}".format(DEBUG))
             if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
-                DEBUG = max(0, DEBUG - 1)
+                DEBUG = max(1, DEBUG - 1)
                 print("Debug level = {}".format(DEBUG))
             # Respawn a new block
             if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
@@ -59,41 +115,28 @@ while True:
                 print("Lines = {}".format(grid.lines))
                 print("Tick = {}".format(grid.tick))
 
+        down_held = False
+
         if game_state == GameState.PLAYING or game_state == GameState.PAUSED:
             if event.type == pygame.KEYUP and event.key == pygame.K_p:
                 text_display_counter = 0
-                game_state = GameState.PLAYING if game_state != GameState.PLAYING else GameState.PAUSED
+                pause_toggle()
+
+        # Sends x,y coords to each button
+        # Fires for all buttons if PLAYING, else just fire for admin buttons (pause / restart)
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            for button in buttons + buttons_admin:
+                button.end_click_event(game_state, *pygame.mouse.get_pos())
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            for button in buttons + buttons_admin:
+                button.start_click_event(game_state, *pygame.mouse.get_pos())
 
         if game_state == GameState.PLAYING:
-            if double_click_counter > 0:
-                double_click_counter += deltaTime
-                if double_click_counter >= DOUBLE_CLICK_TIMEOUT:
-                    double_click_counter = 0
-
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                drag_event_start = grid.get_cell(pygame.mouse.get_pos())
-                if double_click_counter == 0:
-                    double_click_counter += 0.001
-                elif double_click_counter < DOUBLE_CLICK_TIMEOUT:
-                    double_click_counter = 0
-                    grid.rotate_block(grid.current_block)
-            if event.type == pygame.MOUSEMOTION and event.buttons[0] == 1:
-                mouse_cell = grid.get_cell(pygame.mouse.get_pos())
-                if pygame.mouse.get_pos()[1] - drag_event_start[1] > MOUSE_DRAG_THRESHOLD_Y:
-                    drag_event_start = pygame.mouse.get_pos()
-                    grid.move_block_down()
-                elif drag_event_start[0] - pygame.mouse.get_pos()[0] > MOUSE_DRAG_THRESHOLD_X:
-                    drag_event_start = pygame.mouse.get_pos()
-                    grid.move_block_left()
-                elif pygame.mouse.get_pos()[0] - drag_event_start[0] > MOUSE_DRAG_THRESHOLD_X:
-                    drag_event_start = pygame.mouse.get_pos()
-                    grid.move_block_right()
-
             if event.type == pygame.KEYDOWN:
                 grid.still_moving_counter = 0
             # Rotate block
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                grid.rotate_block(grid.current_block)
+                grid.rotate_block()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 grid.move_block_to_bottom()
             # Move block right
@@ -105,17 +148,11 @@ while True:
             # Track if the down key is being held
             if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 down_held = True
-            else:
-                down_held = False
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                grid = Grid(screen)
-                down_held = False
-                game_state = GameState.PLAYING
+                restart()
         if game_state == GameState.GAMEOVER:
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                grid = Grid(screen)
-                down_held = False
-                game_state = GameState.PLAYING
+                restart()
 
     if game_state == GameState.PLAYING:
 
@@ -151,10 +188,16 @@ while True:
                 renders.append(PAUSED_SUB_FONT.render(text[i], True, text_color))
 
         for i in range(len(renders)):
-            pos = (SCREEN_WIDTH / 2 - renders[i].get_width() / 2,
+            pos = ((SCREEN_WIDTH - OSD_WIDTH) / 2 - renders[i].get_width() / 2,
                    SCREEN_HEIGHT / 2 - renders[i].get_height() / 2 + (renders[i].get_height() * i))
             pygame.draw.rect(screen, (0, 0, 0, 125), pygame.Rect(pos, (renders[i].get_width(), renders[i].get_height())))
             screen.blit(renders[i], pos)
 
     osd.draw(DEBUG)
+    for button in buttons + buttons_admin:
+        button.draw(DEBUG, game_state)
     pygame.display.flip()
+
+
+while True:
+    run()
