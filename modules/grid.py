@@ -1,7 +1,7 @@
 from modules.block import Block
 import random
 from modules.globals import *
-from modules.polyfill import enum
+#from modules.polyfill import enum
 
 # Main Grid Function
 # Draw Grid, keep track of grid values and spawn tetrominoes
@@ -20,8 +20,10 @@ class Grid:
         self.changed_values = []
         self._set_tick()
 
-        self.GridState = enum(PLAYING=0, GAMEOVER=1)
-        self.state = self.GridState.PLAYING
+        #self.GridState = enum(PLAYING=0, GAMEOVER=1)
+        self.GridState_PLAYING = 0
+        self.GridState_GAMEOVER = 1
+        self.state = self.GridState_PLAYING
         # Short hand 2d array initialised to 0
         self.grid = [[0 for x in range(BLOCK_WIDTH)] for y in range(BLOCK_HEIGHT)]
 
@@ -30,25 +32,25 @@ class Grid:
         self.current_block = None
         self.next_block = None
         # Generate random tetromino at top of screen
-        self.__create_block()
+        self._create_block()
 
     # Choose a random tetromino and spawn at top
-    def __create_block(self):
+    def _create_block(self):
         if self.next_block is not None:
             self.current_block = self.next_block
         else:
-            self.current_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
-        self.next_block = Block(self.display, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
+            self.current_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
+        self.next_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
 
     # Checks cell values of block. If its part of the tetromino, save it into the grid.
-    def __map_block(self, block):
+    def _map_block(self, block):
         for y in range(len(block.matrix[0])):
             for x in range(len(block.matrix)):
                 if block.matrix[y][x] != 0:
                     self.grid[block.get_relative_y(y)][block.get_relative_x(x)] = block.block_type
 
     # Checks each row in the grid, if it is completely filled, pop it and insert a new row at the top
-    def __check_tetris(self):
+    def _check_tetris(self):
         popped_lines = 0
         for y in range(len(self.grid)):
             # Pop the row if each cell isn't 0
@@ -69,7 +71,7 @@ class Grid:
             self.level += 1
             self._set_tick()
 
-    def __colliding(self, block, x_modifier, y_modifier, block_matrix=0):
+    def _colliding(self, block, x_modifier, y_modifier, block_matrix=0):
         # Map blocks matrix if no custom one specified
         if not block_matrix:
             block_matrix = block.matrix
@@ -155,13 +157,13 @@ class Grid:
                 temp_block.move_up()
         # If we aren't bumping, check the rotation won't intersect any other filled cells
         # Check for cells to right
-        if self.__colliding(temp_block, 1, 0, block_matrix):
+        if self._colliding(temp_block, 1, 0, block_matrix):
             return
         # Check for cells to the left
-        if self.__colliding(temp_block, -1, 0,block_matrix):
+        if self._colliding(temp_block, -1, 0, block_matrix):
             return
         # Check for cells inside of self
-        if self.__colliding(temp_block, 0, 0, block_matrix):
+        if self._colliding(temp_block, 0, 0, block_matrix):
             return
         # If we got past the Guantlet of collision detection, rotate
         self.current_block.position = temp_block.position
@@ -172,21 +174,21 @@ class Grid:
                         clamp(0, SCREEN_HEIGHT, ((-SCREEN_Y_OFFSET + position[1]) / BLOCK_SIZE)))
     # Move left if we won't collide with anything
     def move_block_left(self):
-        if not self.__colliding(self.current_block, -1, 0):
+        if not self._colliding(self.current_block, -1, 0):
             self.current_block.move_left()
 
     # Move right if we won't collide with anything
     def move_block_right(self):
-        if not self.__colliding(self.current_block, 1, 0):
+        if not self._colliding(self.current_block, 1, 0):
             self.current_block.move_right()
 
     def move_block_down(self):
-        if not self.__colliding(self.current_block, 0, 1):
+        if not self._colliding(self.current_block, 0, 1):
             self.current_block.move_down()
 
     # Keep pushing the block down until we would collide
     def move_block_to_bottom(self):
-        if not self.__colliding(self.current_block, 0, 1):
+        if not self._colliding(self.current_block, 0, 1):
             self.current_block.move_down()
             self.move_block_to_bottom()
 
@@ -198,21 +200,22 @@ class Grid:
         if self.counter >= self.tick:
             self.counter = 0
             # If we can move down move down
-            if not self.__colliding(self.current_block, 0, 1):
+            if not self._colliding(self.current_block, 0, 1):
                 self.current_block.move_down()
             else:
                 self.still_moving_counter = 0
-                self.__map_block(self.current_block)
-                self.__check_tetris()
+                self._map_block(self.current_block)
+                self._check_tetris()
                 self._check_levelup()
-                self.__create_block()
+                self._create_block()
 
-            if self.__colliding(self.current_block, 0, 0):
-                self.state = self.GridState.GAMEOVER
+            if self._colliding(self.current_block, 0, 0):
+                self.state = self.GridState_GAMEOVER
 
     # Draw grid lines and filled blocks
     def _draw_grid(self, debug):
         self.screen.fill((0, 0, 0))
+        self.current_block.draw(debug)
         # Draw a vertical line for each x block + 1
         for x in range(len(self.grid[0]) + 1):
             pygame.draw.line(self.screen, GRID_COLOR, [x * BLOCK_SIZE, 0],
@@ -238,7 +241,6 @@ class Grid:
                         y * BLOCK_SIZE + (BLOCK_SIZE / 3.5)))
                 self.display.blit(self.screen, (0, SCREEN_Y_OFFSET))
 
-        self.current_block.draw(debug)
 
     # Main update for grid
     def update(self, debug, dt):

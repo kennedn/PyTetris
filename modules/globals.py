@@ -1,4 +1,5 @@
-import pygame
+#import pygame
+import pyjsdl as pygame
 from modules.polyfill import clamp
 
 BACK_COLOR = (0, 0, 0)      # Background color
@@ -14,8 +15,8 @@ GRID_LINE_WIDTH = 2         # How thick is the grids line
 TICK = 600                  # Determines when the block moves down one row
 FPS = 120                    # Frames per seconds
 SPEED_MULTIPLIER = 7        # How quickly should the block fall when pressing down * BLOCK_TICK
-DEBUG = 1                   # Debug level, higher values do cooler things
-SCREEN_Y_OFFSET = 60#SCREEN_HEIGHT - (BLOCK_HEIGHT * BLOCK_SIZE)
+DEBUG = 0                   # Debug level, higher values do cooler things
+SCREEN_Y_OFFSET = 50#SCREEN_HEIGHT - (BLOCK_HEIGHT * BLOCK_SIZE)
 SCREEN_X_OFFSET = 80#SCREEN_WIDTH - (BLOCK_WIDTH * BLOCK_SIZE)
 OSD_HEIGHT = SCREEN_Y_OFFSET
 OSD_WIDTH = SCREEN_X_OFFSET
@@ -34,12 +35,12 @@ PAUSED_FONT = pygame.font.SysFont('ubuntu', 36)
 PAUSED_FONT.set_bold(True)
 PAUSED_SUB_FONT = pygame.font.SysFont('ubuntu', 26)
 PAUSED_SUB_FONT.set_bold(True)
-OSD_FONT = pygame.font.SysFont('ubuntu', 21)
+OSD_FONT = pygame.font.SysFont('ubuntu', 18)
 #OSD_FONT.set_bold(True)
 # Screen Initialisation - will be clamped to minimum width x height to display grid
-PYGAME_INFO = pygame.display.Info()
+#PYGAME_INFO = pygame.display.Info()
 # SCREEN_WIDTH = clamp((BLOCK_WIDTH * BLOCK_SIZE) + 1, PYGAME_INFO.current_w, 650)
 # SCREEN_HEIGHT = clamp((BLOCK_HEIGHT * BLOCK_SIZE) + 1, PYGAME_INFO.current_h, 800)
-SCREEN_WIDTH = clamp((BLOCK_WIDTH * BLOCK_SIZE) + 1 + SCREEN_X_OFFSET, PYGAME_INFO.current_w, 0)
-SCREEN_HEIGHT = clamp((BLOCK_HEIGHT * BLOCK_SIZE) + 1 + SCREEN_Y_OFFSET, PYGAME_INFO.current_h, 0)
+SCREEN_WIDTH = clamp((BLOCK_WIDTH * BLOCK_SIZE) + 1 + SCREEN_X_OFFSET, 99999, 0)
+SCREEN_HEIGHT = clamp((BLOCK_HEIGHT * BLOCK_SIZE) + 1 + SCREEN_Y_OFFSET, 99999, 0)
 CAPTION = "PyTetris"

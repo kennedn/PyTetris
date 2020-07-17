@@ -1,23 +1,26 @@
 #!/usr/bin/python
-import pygame
+#import pygame
+import pyjsdl as pygame
 from modules.grid import Grid
 from modules.osd import OSD
 from modules.button import Button
 from modules.globals import *
-from modules.polyfill import enum
+#from modules.polyfill import enum
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption(CAPTION)
 clock = pygame.time.Clock()
-GameState = enum(PAUSED=0, GAMEOVER=1, PLAYING=2)
-game_state = None
+#GameState = enum(PAUSED=0, GAMEOVER=1, PLAYING=2)
+GameState_PAUSED = 0
+GameState_GAMEOVER = 1
+GameState_PLAYING = 2
 grid = None
 osd = OSD(screen, pygame.Rect(0, 0, SCREEN_WIDTH - OSD_WIDTH, OSD_HEIGHT), 2, 5, 3, 6,  GRID_COLOR)
 
 
 def pause_toggle():
     global game_state
-    game_state = GameState.PLAYING if game_state != GameState.PLAYING else GameState.PAUSED
+    game_state = GameState_PLAYING if game_state != GameState_PLAYING else GameState_PAUSED
 
 
 def restart():
@@ -27,44 +30,42 @@ def restart():
     grid = Grid(screen)
     attach_buttons()
     down_held = False
-    game_state = GameState.PLAYING
+    game_state = GameState_PLAYING
 
 # Button definitions, normal buttons should only call their function during PLAYING.
 # Admin buttons should be activated during any gamestate.
 # Must be run at restart as a new grid object is generated, invalidating some function calls
-buttons_admin = []
 buttons = []
 def attach_buttons():
-    global buttons_admin
     global buttons
-    buttons_admin = []
     buttons = []
-    buttons_admin.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+    buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
                                 pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, BUTTON_SIZE,
                                             BUTTON_SIZE, BUTTON_SIZE), 5,  5, [0, 2], pause_toggle))
-    buttons_admin.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
+    buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
                                 pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, 0,
                                             BUTTON_SIZE, BUTTON_SIZE), 5,  6, [0, 1, 2], restart))
     buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
                           pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 5, BUTTON_SIZE,
-                                      BUTTON_SIZE), 5,  2, [2], grid.move_block_left))
+                                      BUTTON_SIZE), 5,  2, [2], getattr(grid, 'move_block_left')))
     buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
                           pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 4, BUTTON_SIZE,
-                                      BUTTON_SIZE), 5,  1, [2], grid.move_block_right))
+                                      BUTTON_SIZE), 5,  1, [2], getattr(grid, 'move_block_right')))
     buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
                           pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 3, BUTTON_SIZE,
-                                      BUTTON_SIZE), 5,  0, [2], grid.rotate_block))
+                                      BUTTON_SIZE), 5,  0, [2], getattr(grid, 'rotate_block')))
     buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
                           pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 2, BUTTON_SIZE,
-                                      BUTTON_SIZE), 5,  3, [2], grid.move_block_down))
+                                      BUTTON_SIZE), 5,  3, [2], getattr(grid, 'move_block_down')))
     buttons.append(Button(screen, BUTTON_COLOR_BG, BUTTON_COLOR_FG,
                           pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE, BUTTON_SIZE,
-                                      BUTTON_SIZE), 5,  4, [2], grid.move_block_to_bottom))
+                                      BUTTON_SIZE), 5,  4, [2], getattr(grid, 'move_block_to_bottom')))
 
+screen.fill((0, 0, 0))
 # Call restart to initialise start state
 restart()
 # Update game_state and perform one draw call to osd and grid so that pause screen draws correct objects
-game_state = GameState.PAUSED
+game_state = GameState_PAUSED
 osd.update_values(grid.score, grid.level, grid.next_block)
 grid._draw_grid(DEBUG)
 text_display_counter = 0
@@ -117,7 +118,7 @@ def run():
 
         down_held = False
 
-        if game_state == GameState.PLAYING or game_state == GameState.PAUSED:
+        if game_state == GameState_PLAYING or game_state == GameState_PAUSED:
             if event.type == pygame.KEYUP and event.key == pygame.K_p:
                 text_display_counter = 0
                 pause_toggle()
@@ -125,13 +126,13 @@ def run():
         # Sends x,y coords to each button
         # Fires for all buttons if PLAYING, else just fire for admin buttons (pause / restart)
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            for button in buttons + buttons_admin:
+            for button in buttons:
                 button.end_click_event(game_state, *pygame.mouse.get_pos())
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            for button in buttons + buttons_admin:
+            for button in buttons:
                 button.start_click_event(game_state, *pygame.mouse.get_pos())
 
-        if game_state == GameState.PLAYING:
+        if game_state == GameState_PLAYING:
             if event.type == pygame.KEYDOWN:
                 grid.still_moving_counter = 0
             # Rotate block
@@ -150,23 +151,22 @@ def run():
                 down_held = True
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
                 restart()
-        if game_state == GameState.GAMEOVER:
+        if game_state == GameState_GAMEOVER:
             if event.type == pygame.KEYUP and event.key == pygame.K_r:
                 restart()
-
-    if game_state == GameState.PLAYING:
+    if game_state == GameState_PLAYING:
 
         # Perform additional updates to block if we want to go down faster
         if down_held:
             grid.update_block(DEBUG, deltaTime * max(.5, SPEED_MULTIPLIER - grid.level))
         # Transition to game over state if grid flags a game over
-        if grid.state == grid.GridState.GAMEOVER:
-            game_state = GameState.GAMEOVER
+        if grid.state == grid.GridState_GAMEOVER:
+            game_state = GameState_GAMEOVER
 
         grid.update(DEBUG, deltaTime)
         osd.update_values(grid.score, grid.level, grid.next_block)
 
-    elif game_state == GameState.PAUSED or game_state == GameState.GAMEOVER:
+    elif game_state == GameState_PAUSED or game_state == GameState_GAMEOVER:
         renders = []
 
         text_display_counter += deltaTime
@@ -177,9 +177,9 @@ def run():
         else:
             text_color = (255, 255, 255)
 
-        if game_state == GameState.PAUSED:
+        if game_state == GameState_PAUSED:
             text = ["Pause", "Press P to play"]
-        elif game_state == GameState.GAMEOVER:
+        elif game_state == GameState_GAMEOVER:
             text = ["Game Over", "Press R to restart"]
         for i in range(len(text)):
             if i == 0:
@@ -194,10 +194,11 @@ def run():
             screen.blit(renders[i], pos)
 
     osd.draw(DEBUG)
-    for button in buttons + buttons_admin:
+    for button in buttons:
         button.draw(DEBUG, game_state)
     pygame.display.flip()
 
 
-while True:
-    run()
+# while True:
+#     run()
+pygame.display.setup(run)

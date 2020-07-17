@@ -1,4 +1,3 @@
-import pygame
 from modules.globals import *
 
 
@@ -21,8 +20,8 @@ class OSD:
 
     def init_display(self):
         # Generate Rectangles for each display element
-        big = .33
-        small = .33
+        big = .4
+        small = 1 - big * 2
         self.rects['left'] = pygame.Rect(self.pad, self.pad, self.rect.width * big - self.pad * 2,
                                          self.rect.height - self.pad * 2)
         self.rects['middle'] = pygame.Rect(self.rect.width * big + self.pad, self.pad,
@@ -51,8 +50,8 @@ class OSD:
                                                        (int(self.rects['middle'].height * .66 - self.pad * 2),
                                                         int(self.rects['middle'].height * .66 - self.pad * 2)))
             self.blits['block'] = (scaled_block,
-                                   (self.rects['middle'].x - self.pad + self.rects['middle'].width / 2 - scaled_block.get_width() / 2 + self.pad,
-                                    self.rects['middle'].y - self.pad + self.rects['middle'].height / 2 - scaled_block.get_height() / 2 + self.pad))
+                                   (self.rects['middle'].x + self.rects['middle'].width / 2 - scaled_block.get_width() / 2,
+                                    self.rects['middle'].y + self.rects['middle'].height / 2 - scaled_block.get_height() / 2))
         else:
             scaled_block = pygame.transform.smoothscale(next_block.screen,
                                                        (int(self.rects['middle'].height - self.pad * 2),
@@ -60,8 +59,8 @@ class OSD:
             #self.blits['block'] = (scaled_block,
             #                       (self.rects['middle'].x + self.pad, self.rects['middle'].y + self.pad))
             self.blits['block'] = (scaled_block,
-                                   (self.rects['middle'].x + self.rects['middle'].width / 2 - scaled_block.get_width() / 2 + self.pad,
-                                    self.rects['middle'].y + self.rects['middle'].height / 2 - scaled_block.get_height() / 2 + self.pad))
+                                   (self.rects['middle'].x + self.rects['middle'].width / 2 - scaled_block.get_width() / 2,
+                                    self.rects['middle'].y + self.rects['middle'].height / 2 - scaled_block.get_height() / 2))
 
     def draw(self, debug):
         # Call next_block draw with False flag to generate a surface we can access but don't draw it to main display

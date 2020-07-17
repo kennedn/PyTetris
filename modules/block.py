@@ -4,19 +4,19 @@ from globals import *
 class Block:
     def __init__(self, main_surface, block_type):
         self.display = main_surface
-        self.matrix = self.__get_matrix(block_type)
-        self.position = self.__get_start_position(self.matrix)
+        self.matrix = self._get_matrix(block_type)
+        self.position = self._get_start_position(self.matrix)
         self.center = (int(len(self.matrix[0]) / 2), int(len(self.matrix[1]) / 2))
         self.block_type = block_type
         self.width = len(self.matrix[0])
         self.height = len(self.matrix)
-        self.screen = pygame.Surface((self.width * BLOCK_SIZE, self.height * BLOCK_SIZE), pygame.SRCALPHA)
-        self.screen = self.screen.convert_alpha()
-        #self.screen.set_colorkey((128, 0, 128))
+        self.screen = pygame.Surface((self.width * BLOCK_SIZE, self.height * BLOCK_SIZE))
+        #self.screen = self.screen.convert_alpha()
+        self.screen.set_colorkey((0, 0, 0))
 
     # Defines each type of Tetromino, returns a 2d array of type block_type
     @staticmethod
-    def __get_matrix(block_type):
+    def _get_matrix(block_type):
 
         if block_type == 1:
             return [[0, 0, 0, 0],
@@ -73,7 +73,7 @@ class Block:
                             block_size - grid_line_width - (block_size - (block_size * scale)))
 
     # Calculate starting x position
-    def __get_start_position(self, matrix):
+    def _get_start_position(self, matrix):
         return int(BLOCK_WIDTH / 2 - (len(matrix[0]) / 2)), 0
 
     # Calculate world bound y position
@@ -129,7 +129,7 @@ class Block:
 
     # Draw each cell based on position and matrix
     def draw(self, debug, to_screen=True):
-        self.screen.fill((128, 0, 128, 0))
+        self.screen.fill((0, 0, 0))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
             for x in range(len(self.matrix[y])):
@@ -147,4 +147,4 @@ class Block:
 
         if to_screen:
             self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + 0,
-                                        self.position[1] * BLOCK_SIZE + SCREEN_Y_OFFSET))
+                                        self.position[1] * BLOCK_SIZE + 0))
