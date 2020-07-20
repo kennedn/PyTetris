@@ -85,9 +85,8 @@ class Grid:
                     return True
                 # If we aren't dealing with rotation & dont care about the y component
                 #  & we have a filled cell & we are touching the bottom row
-                if block.matrix == block_matrix and y_modifier != 0 and block_matrix[y][
-                    x] != 0 and block.get_relative_y(
-                    y) >= BLOCK_HEIGHT - 1:
+                if block.matrix == block_matrix and y_modifier != 0 and block_matrix[y][x] != 0 \
+                   and block.get_relative_y(y) >= BLOCK_HEIGHT - 1:
                     return True
 
         return False
@@ -118,29 +117,28 @@ class Grid:
 
     # Bucket load of collision detection to ensure a rotation will not collide.
     # This function also 'bumps' the block if its next rotation would be out of bounds, instead of not rotating
-    def rotate_block(self):
+    def rotate_block(self, reverse=False):
         # Create clone of current_block so we can simulate some rotations and collisions
         temp_block = Block(self.display, self.current_block.block_type)
         temp_block.matrix = self.current_block.matrix
         temp_block.position = self.current_block.position
 
-        block_matrix = self.current_block.get_next_rotation(temp_block.matrix)
-        temp_block._rotate()
+        temp_block._rotate_right() if not reverse else temp_block._rotate_left()
         left_counter = 0
         right_counter = 0
         bottom_counter = 0
-        for y in range(len(block_matrix[0])):
-            for x in range(len(block_matrix)):
+        for y in range(len(temp_block.matrix[0])):
+            for x in range(len(temp_block.matrix)):
                 # Calculate the bump amount if the rotation will be down OOB
-                if block_matrix[y][x] != 0 and temp_block.get_relative_y(y) > BLOCK_HEIGHT - 1:
+                if temp_block.matrix[y][x] != 0 and temp_block.get_relative_y(y) > BLOCK_HEIGHT - 1:
                     if temp_block.get_relative_y(y) - (BLOCK_HEIGHT - 1) > bottom_counter:
                         bottom_counter = temp_block.get_relative_y(y) - (BLOCK_HEIGHT - 1)
                 # Calculate the bump amount if the rotation will be right OOB
-                elif block_matrix[y][x] != 0 and temp_block.get_relative_x(x) > BLOCK_WIDTH - 1:
+                elif temp_block.matrix[y][x] != 0 and temp_block.get_relative_x(x) > BLOCK_WIDTH - 1:
                     if temp_block.get_relative_x(x) - (BLOCK_WIDTH - 1) > right_counter:
                         right_counter = temp_block.get_relative_x(x) - (BLOCK_WIDTH - 1)
                 # Calculate the bump amount if the rotation will be left OOB
-                elif block_matrix[y][x] != 0 and temp_block.get_relative_x(x) < 0:
+                elif temp_block.matrix[y][x] != 0 and temp_block.get_relative_x(x) < 0:
                     if temp_block.get_relative_x(x) < left_counter:
                         left_counter = temp_block.get_relative_x(x)
         # Bump right x amount of times
@@ -157,15 +155,15 @@ class Grid:
                 temp_block.move_up()
         # If we aren't bumping, check the rotation won't intersect any other filled cells
         # Check for cells to right
-        if self._colliding(temp_block, 1, 0, block_matrix):
+        if self._colliding(temp_block, 1, 0, temp_block.matrix):
             return
         # Check for cells to the left
-        if self._colliding(temp_block, -1, 0, block_matrix):
+        if self._colliding(temp_block, -1, 0,temp_block.matrix):
             return
         # Check for cells inside of self
-        if self._colliding(temp_block, 0, 0, block_matrix):
+        if self._colliding(temp_block, 0, 0, temp_block.matrix):
             return
-        # If we got past the Guantlet of collision detection, rotate
+        # If temp block made it past the Guantlet of collision detection, copy temp blocks values to our curr block
         self.current_block.position = temp_block.position
         self.current_block.matrix = temp_block.matrix
 

@@ -20,6 +20,8 @@ osd = OSD(screen, pygame.Rect(0, 0, SCREEN_WIDTH - OSD_WIDTH, OSD_HEIGHT), 2, 5,
 
 def pause_toggle():
     global game_state
+    global text_display_counter
+    text_display_counter = 0
     game_state = GameState_PLAYING if game_state != GameState_PLAYING else GameState_PAUSED
 
 
@@ -79,8 +81,6 @@ def run():
     deltaTime = clock.tick(FPS)
     # Keybinds
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-            exit()
         # Debug functions
         if DEBUG > 0:
             # Debug level incrementer / decrementer - numpad + and -
@@ -120,7 +120,6 @@ def run():
 
         if game_state == GameState_PLAYING or game_state == GameState_PAUSED:
             if event.type == pygame.KEYUP and event.key == pygame.K_p:
-                text_display_counter = 0
                 pause_toggle()
 
         # Sends x,y coords to each button
@@ -136,9 +135,11 @@ def run():
             if event.type == pygame.KEYDOWN:
                 grid.still_moving_counter = 0
             # Rotate block
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
                 grid.rotate_block()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_z:
+                grid.rotate_block(True)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 grid.move_block_to_bottom()
             # Move block right
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:

@@ -85,8 +85,13 @@ class Block:
         return self.position[0] + x
 
     # Flip 2d array 90 degrees to the right
-    def _rotate(self):
+    def _rotate_right(self):
         self.matrix = self.get_next_rotation(self.matrix)
+
+    # Flip 2d array 90 degrees to the left
+    def _rotate_left(self):
+        for i in range(3):
+            self.matrix = self.get_next_rotation(self.matrix)
 
     # Rotates 2d array 90 degrees to the right. Reverse array order then use zip to turn columns into rows
     @staticmethod
