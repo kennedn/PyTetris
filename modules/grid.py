@@ -10,7 +10,7 @@ class Grid:
     def __init__(self, main_surface):
         self.display = main_surface
         self.screen = pygame.Surface(((BLOCK_WIDTH + 1) * BLOCK_SIZE, (BLOCK_HEIGHT + 1) * BLOCK_SIZE))
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((BACK_COLOR))
         self.counter = 0
         self.still_moving_counter = 0
 
@@ -212,7 +212,7 @@ class Grid:
 
     # Draw grid lines and filled blocks
     def _draw_grid(self, debug):
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((BACK_COLOR))
         self.current_block.draw(debug)
         # Draw a vertical line for each x block + 1
         for x in range(len(self.grid[0]) + 1):
@@ -230,7 +230,7 @@ class Grid:
             for x in range(len(self.grid[y])):
                 # Draw rectangles in cells with their appropriate color (based on what tetromino filled them)
                 if self.grid[y][x] != 0:
-                    pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),Block.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.85), BLOCK_LINE_WIDTH)
+                    pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),Block.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, .6), BLOCK_LINE_WIDTH)
                 # Overlay each cells value on the screen with a color that is human readable (inverted)
                 if debug == 5:
                     text_surface = DEBUG_FONT.render(str(self.grid[y][x]), True, (255,255,255))

@@ -12,7 +12,7 @@ class Block:
         self.height = len(self.matrix)
         self.screen = pygame.Surface((self.width * BLOCK_SIZE, self.height * BLOCK_SIZE))
         #self.screen = self.screen.convert_alpha()
-        self.screen.set_colorkey((0, 0, 0))
+        self.screen.set_colorkey((BACK_COLOR))
 
     # Defines each type of Tetromino, returns a 2d array of type block_type
     @staticmethod
@@ -51,26 +51,26 @@ class Block:
     @staticmethod
     def get_color(num):
         if num == 1:
-            return 255, 0, 0  # Red
+            return 252, 118, 120  # Red
         elif num == 2:
-            return 0, 255, 255  # Cyan
+            return 54, 219, 213  # Cyan
         elif num == 3:
-            return 184, 134, 11  # Dark Gold
+            return 213, 214, 9  # Dark Gold
         elif num == 4:
-            return 255, 0, 255  # Magenta
+            return 110, 4, 169  # Magenta
         elif num == 5:
-            return 255, 255, 0  # Blue
+            return 97, 103, 2212  # Orange
         elif num == 6:
-            return 0, 0, 255  # Silver
+            return 170, 170, 170  # Silver
         elif num == 7:
-            return 0, 128, 0  # Green
+            return 7, 144, 65  # Green
     # Generate a rectangle with grid line offset and scaler value
     @staticmethod
     def get_rect(x, y, block_size, grid_line_width, scale):
-        return pygame.Rect(x * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
-                            y * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
-                            block_size - grid_line_width - (block_size - (block_size * scale)),
-                            block_size - grid_line_width - (block_size - (block_size * scale)))
+        return pygame.Rect(x * block_size + grid_line_width / 2 + (block_size / 2 - (block_size / 2 * scale)),
+                           y * block_size + grid_line_width / 2 + (block_size / 2 - (block_size / 2 * scale)),
+                           block_size - grid_line_width - (block_size - (block_size * scale)),
+                           block_size - grid_line_width - (block_size - (block_size * scale)))
 
     # Calculate starting x position
     def _get_start_position(self, matrix):
@@ -134,11 +134,11 @@ class Block:
 
     # Draw each cell based on position and matrix
     def draw(self, debug, to_screen=True):
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((BACK_COLOR))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
             for x in range(len(self.matrix[y])):
-                cell_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.85)
+                cell_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, .6)
                 debug_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.3)
                 debug_color = (255,255,255)
                 if self.matrix[y][x] == 0 and debug == 3:

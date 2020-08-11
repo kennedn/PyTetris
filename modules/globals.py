@@ -2,15 +2,15 @@
 import pyjsdl as pygame
 from modules.polyfill import clamp
 
-BACK_COLOR = (0, 0, 0)      # Background color
-GRID_COLOR = (84, 84, 84)   # Grid lines color
-BUTTON_COLOR_BG = (84, 84, 84)
-BUTTON_COLOR_FG = (200, 200, 200)
+BACK_COLOR = (221, 33, 100)      # Background color
+GRID_COLOR = (255, 255, 255)   # Grid lines color
+BUTTON_COLOR_BG = (255, 255, 255)
+BUTTON_COLOR_FG = (255, 255, 255)
 BLOCK_WIDTH = 10            # How many rows in grid    ---\
 BLOCK_HEIGHT = 22            # How many columns in grid  ---| --- Together, define minimum window size
 BLOCK_SIZE = 30             # How big is each cell     ---/
 BUTTON_SIZE = 80
-BLOCK_LINE_WIDTH = 3        # How thick is a blocks line
+BLOCK_LINE_WIDTH = 8        # How thick is a blocks line
 GRID_LINE_WIDTH = 2         # How thick is the grids line
 TICK = 600                  # Determines when the block moves down one row
 FPS = 120                    # Frames per seconds

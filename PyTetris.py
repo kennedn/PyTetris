@@ -63,7 +63,7 @@ def attach_buttons():
                           pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE, BUTTON_SIZE,
                                       BUTTON_SIZE), 5,  4, [2], getattr(grid, 'move_block_to_bottom')))
 
-screen.fill((0, 0, 0))
+screen.fill(BACK_COLOR)
 # Call restart to initialise start state
 restart()
 # Update game_state and perform one draw call to osd and grid so that pause screen draws correct objects
@@ -174,7 +174,7 @@ def run():
         if text_display_counter >= 600:
             if text_display_counter >= 1200:
                 text_display_counter = 0
-            text_color = (0, 0, 0)
+            text_color = BACK_COLOR
         else:
             text_color = (255, 255, 255)
 
@@ -191,7 +191,7 @@ def run():
         for i in range(len(renders)):
             pos = ((SCREEN_WIDTH - OSD_WIDTH) / 2 - renders[i].get_width() / 2,
                    SCREEN_HEIGHT / 2 - renders[i].get_height() / 2 + (renders[i].get_height() * i))
-            pygame.draw.rect(screen, (0, 0, 0, 125), pygame.Rect(pos, (renders[i].get_width(), renders[i].get_height())))
+            pygame.draw.rect(screen, BACK_COLOR, pygame.Rect(pos, (renders[i].get_width(), renders[i].get_height())))
             screen.blit(renders[i], pos)
 
     osd.draw(DEBUG)

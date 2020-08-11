@@ -50,7 +50,7 @@ class Button:
                                                   self.rect_normal.y + (self.rect_normal.width / 2 - render.get_height() / 2), self.rect_normal.width, self.rect_normal.height))
 
     def draw(self, debug, state):
-        self.surface.fill((0, 0, 0))
+        self.surface.fill((BACK_COLOR))
         if state in self.valid_states:
             width = 0 if self.reverse_color else 2
             if debug >= 2:

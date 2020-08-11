@@ -64,7 +64,7 @@ class OSD:
 
     def draw(self, debug):
         # Call next_block draw with False flag to generate a surface we can access but don't draw it to main display
-        self.surface.fill((0, 0, 0))
+        self.surface.fill((BACK_COLOR))
 
         # Draw curved rectangles where we have defined our display elements
         for r in self.rects.values():
