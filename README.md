@@ -1,7 +1,7 @@
 # PyTetris
-My basic little implementation of tetris in python using the pygame library.
+A basic implementation of Tetris, coded in Python using Pygame, compiled to JavaScript using Pyjs with Pyjsdl. 
 
-<img src="https://i.imgur.com/xMdPUzn.png" alt="drawing" width="150"/>
+<img src="images/PyTetris.gif" alt="drawing" width="150"/>
 
 ## How to run
 python3 and pygame library must be installed to run PyTetris. 
@@ -20,22 +20,34 @@ python3 main.py
 ```
 
 ## Controls
+Normal keyboard controls are as follows:
 | Normal Keys |  Action         |
 |------------ |-----------------|
 | Left Arrow  | Move Left       |
 | Rigth Arrow | Move Right      |
-| Down Arrow  | Move Down Faster|
-| Space       | Rotate          |
-| Esc         | Exit the game   |
+| Z           | Rotate Left     |
+| X           | Rotate Right    |
+| Down Arrow  | Soft Drop       |
+| Space       | Hard Drop       |
+| P           | Pause           |
+| R           | Restart         |
 
-|Debug key |Action                               |
-|----------|-------------------------------------|
-|Numlock + | Increase debug level                |
-|Numlock - | Decrease debug level                |
-|R Key     | Respawn current block               |
-|0 Key     | Reset grid                          |
-|P Key     | Print trimmed block array to console|
-|G Key     | Print grid array to console         |
-|B Key     | Print current bock array to console |
+Additionally in this branch, partial controls are implemented in buttons to the right of the main grid.
+
+If the DEBUG variable under modules/globals.py is greater than 0 then the following additional controls are enabled:
+
+|Debug key  |Action                               |
+|-----------|-------------------------------------|
+| Page Up   | Increase debug level                |
+| Page Down | Decrease debug level                |
+| 1 Key     | Respawn current block               |
+| 2 Key     | Reset grid                          |
+| 3 Key     | Print raw 2d block array to console |
+| 4 Key     | Print raw 2d grid array to console  |
+| 5 Key     | Increase current game level         |
+| 6 Key     | Decrease current game level         |
+| 7 Key     | Incrase current score               |
+
+
 
 
