@@ -1,5 +1,5 @@
 # PyTetris
-A basic implementation of Tetris, coded in Python using Pygame, compiled to JavaScript using Pyjs with Pyjsdl. 
+A basic implementation of Tetris, coded in Python using Pygame. 
 
 
 <img src="images/PyTetris.gif" width="150"/>
