@@ -1,12 +1,13 @@
 # PyTetris
 A basic implementation of Tetris, coded in Python using Pygame, compiled to JavaScript using Pyjs with Pyjsdl. 
 
-<img src="images/PyTetris.gif" alt="drawing" width="150"/>
+
+<img src="images/PyTetris.gif" width="150"/>
 
 ## How to run
-python3 and pygame library must be installed to run PyTetris. 
+python2.7 or python3 and pygame library must be installed to run PyTetris. 
 
-This can be achieve in ubuntu by doing:
+For example, to install python3 and pygame on a debian linux system:
 
 ```bash
 sudo apt install python3
@@ -47,7 +48,5 @@ If the DEBUG variable under modules/globals.py is greater than 0 then the follow
 | 5 Key     | Increase current game level         |
 | 6 Key     | Decrease current game level         |
 | 7 Key     | Incrase current score               |
-
-
 
 
