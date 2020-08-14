@@ -1,0 +1,1 @@
+$pyjs.loaded_modules.pyjamas=function(a){if($pyjs.loaded_modules.pyjamas.__was_initialized__)return $pyjs.loaded_modules.pyjamas;var b=$pyjs.loaded_modules.pyjamas;b.__repr__=function(){return"<module: pyjamas>"};b.__was_initialized__=!0;if(null===a||"undefined"==typeof a)a="pyjamas";b.__name__=a;return this};

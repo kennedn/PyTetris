@@ -1,22 +1,24 @@
 from modules.globals import *
 
-
-# Tetromino class, defines a single tetris piece.
+#########################################################
+# defines a tetromino
+# {pygame.Surface} display - parent surface for blitting
+# {int} block_type - defines the type of tetromino (possible 7)
 class Block:
-    def __init__(self, main_surface, block_type):
-        self.display = main_surface
-        self.matrix = self.__get_matrix(block_type)
-        self.position = self.__get_start_position(self.matrix)
+    def __init__(self, display, block_type):
+        self.display = display
+        self.matrix = self._get_matrix(block_type)
+        self.position = self._get_start_position(self.matrix)
         self.center = (int(len(self.matrix[0]) / 2), int(len(self.matrix[1]) / 2))
         self.block_type = block_type
         self.width = len(self.matrix[0])
         self.height = len(self.matrix)
         self.screen = pygame.Surface((self.width * BLOCK_SIZE, self.height * BLOCK_SIZE))
-        self.screen.set_colorkey((124, 0, 124))
+        self.screen.set_colorkey((BACK_COLOR))
 
     # Defines each type of Tetromino, returns a 2d array of type block_type
     @staticmethod
-    def __get_matrix(block_type):
+    def _get_matrix(block_type):
 
         if block_type == 1:
             return [[0, 0, 0, 0],
@@ -47,33 +49,35 @@ class Block:
                     [0, 1, 1],
                     [0, 0, 0]]
 
-    # Defines colors for each Tetromino, returns a tuple
+    # defines colors for each tetromino, returns a tuple
     @staticmethod
     def get_color(num):
         if num == 1:
-            return 255, 0, 0  # Red
+            return 252, 118, 120  # orange
         elif num == 2:
-            return 0, 255, 255  # Cyan
+            return 54, 219, 213  # turquoise
         elif num == 3:
-            return 184, 134, 11  # Dark Gold
+            return 213, 214, 9  # dirty gold
         elif num == 4:
-            return 255, 0, 255  # Magenta
+            return 110, 4, 169  # purple
         elif num == 5:
-            return 255, 255, 0  # Blue
+            return 97, 103, 212  # lavender
         elif num == 6:
-            return 0, 0, 255  # Silver
+            return 170, 170, 170  # silver
         elif num == 7:
-            return 0, 128, 0  # Green
+            return 7, 144, 65  # green
+
     # Generate a rectangle with grid line offset and scaler value
     @staticmethod
     def get_rect(x, y, block_size, grid_line_width, scale):
-        return pygame.Rect(x * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
-                            y * block_size + grid_line_width + (block_size / 2 - (block_size / 2 * scale)),
-                            block_size - grid_line_width - (block_size - (block_size * scale)),
-                            block_size - grid_line_width - (block_size - (block_size * scale)))
+        return pygame.Rect(x * block_size + grid_line_width / 2 + (block_size / 2 - (block_size / 2 * scale)),
+                           y * block_size + grid_line_width / 2 + (block_size / 2 - (block_size / 2 * scale)),
+                           block_size - grid_line_width - (block_size - (block_size * scale)),
+                           block_size - grid_line_width - (block_size - (block_size * scale)))
 
     # Calculate starting x position
-    def __get_start_position(self, matrix):
+    @staticmethod
+    def _get_start_position(matrix):
         return int(BLOCK_WIDTH / 2 - (len(matrix[0]) / 2)), 0
 
     # Calculate world bound y position
@@ -85,13 +89,18 @@ class Block:
         return self.position[0] + x
 
     # Flip 2d array 90 degrees to the right
-    def _rotate(self):
+    def _rotate_right(self):
         self.matrix = self.get_next_rotation(self.matrix)
+
+    # Flip 2d array 90 degrees to the left
+    def _rotate_left(self):
+        for i in range(3):
+            self.matrix = self.get_next_rotation(self.matrix)
 
     # Rotates 2d array 90 degrees to the right. Reverse array order then use zip to turn columns into rows
     @staticmethod
     def get_next_rotation(matrix):
-        return list(zip(*matrix[::-1]))
+        return list(zip(*reversed(matrix)))
 
     def move_down(self):
         self.position = (self.position[0], self.position[1] + 1)
@@ -129,22 +138,23 @@ class Block:
 
     # Draw each cell based on position and matrix
     def draw(self, debug, to_screen=True):
-        self.screen.fill((124, 0, 124))
+        self.screen.fill((BACK_COLOR))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
             for x in range(len(self.matrix[y])):
-                cell_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.85)
+                # debug draws
+                cell_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, .6)
                 debug_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.3)
-                debug_color = (255,255,255)
+                debug_color = (255, 255, 255)
                 if self.matrix[y][x] == 0 and debug == 3:
-                    pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
+                    pygame.draw.rect(self.screen, debug_color, debugrect, BLOCK_LINE_WIDTH)
                     self.screen.set_colorkey((1,1,1))
-
                 if rot_matrix[y][x] != 0 and debug == 4:
                     pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
+
                 if self.matrix[y][x] != 0:
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
 
         if to_screen:
-            self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + SCREEN_X_OFFSET,
-                                        self.position[1] * BLOCK_SIZE + SCREEN_Y_OFFSET))
+            self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + 0,
+                                        self.position[1] * BLOCK_SIZE + 0))

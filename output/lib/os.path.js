@@ -1,0 +1,2 @@
+$pyjs.loaded_modules["os.path"]=function(a){if($pyjs.loaded_modules["os.path"].__was_initialized__)return $pyjs.loaded_modules["os.path"];"undefined"!=typeof $pyjs.loaded_modules.os&&$pyjs.loaded_modules.os.__was_initialized__||$p.___import___("os",null);var b=$pyjs.loaded_modules["os.path"];b.__repr__=function(){return"<module: os.path>"};b.__was_initialized__=!0;if(null===a||"undefined"==typeof a)a="os.path";b.__name__=a;$pyjs.loaded_modules.os.path=$pyjs.loaded_modules["os.path"];$p.__import_all__("pyjspath",
+"os",b,null,!1);return this};

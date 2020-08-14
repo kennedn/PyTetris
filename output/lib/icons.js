@@ -1,0 +1,1 @@
+$pyjs.loaded_modules.icons=function(a){if($pyjs.loaded_modules.icons.__was_initialized__)return $pyjs.loaded_modules.icons;var b=$pyjs.loaded_modules.icons;b.__repr__=function(){return"<module: icons>"};b.__was_initialized__=!0;if(null===a||"undefined"==typeof a)a="icons";b.__name__=a;return this};
