@@ -1,2 +1,2 @@
 $pyjs.loaded_modules["icons.left"]=function(a){if($pyjs.loaded_modules["icons.left"].__was_initialized__)return $pyjs.loaded_modules["icons.left"];"undefined"!=typeof $pyjs.loaded_modules.icons&&$pyjs.loaded_modules.icons.__was_initialized__||$p.___import___("icons",null);var b=$pyjs.loaded_modules["icons.left"];b.__repr__=function(){return"<module: icons.left>"};b.__was_initialized__=!0;if(null===a||"undefined"==typeof a)a="icons.left";b.__name__=a;$pyjs.loaded_modules.icons.left=$pyjs.loaded_modules["icons.left"];
-b.points=$p.list([$p.tuple([58,40]),$p.tuple([28,22]),$p.tuple([28,58])]);return this};
+b.points=$p.list([$p.tuple([22,40]),$p.tuple([52,22]),$p.tuple([52,58])]);return this};
