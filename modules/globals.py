@@ -1,4 +1,4 @@
-import pyjsdl as pygame
+import pygame
 
 CAPTION = "jsTetris"			   # game window caption
 BACK_COLOR = (221, 33, 100)        # background color

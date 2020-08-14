@@ -1,2 +1,0 @@
-$pyjs.loaded_modules["pyjamas.media"]=function(a){if($pyjs.loaded_modules["pyjamas.media"].__was_initialized__)return $pyjs.loaded_modules["pyjamas.media"];"undefined"!=typeof $pyjs.loaded_modules.pyjamas&&$pyjs.loaded_modules.pyjamas.__was_initialized__||$p.___import___("pyjamas",null);var b=$pyjs.loaded_modules["pyjamas.media"];b.__repr__=function(){return"<module: pyjamas.media>"};b.__was_initialized__=!0;if(null===a||"undefined"==typeof a)a="pyjamas.media";b.__name__=a;$pyjs.loaded_modules.pyjamas.media=
-$pyjs.loaded_modules["pyjamas.media"];return this};

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import pyjsdl as pygame
+import pygame
 from modules.grid import Grid
 from modules.osd import OSD
 from modules.button import Button
@@ -89,7 +89,9 @@ def run():
 
     # main event loop (mostly for keyboard)
     for event in pygame.event.get():
-
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
         # Debug functions
         if DEBUG > 0:
             # Debug level incrementer / decrementer - numpad + and -
@@ -233,5 +235,7 @@ def run():
     pygame.display.flip()
 
 
-# point pyjsdl to our main function
-pygame.display.setup(run)
+# main loop
+while True:
+    run()
+

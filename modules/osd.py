@@ -1,4 +1,4 @@
-import pyjsdl as pygame
+import pygame
 from modules.globals import *
 
 
