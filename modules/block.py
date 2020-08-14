@@ -147,7 +147,7 @@ class Block:
                 debug_rect = self.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, 0.3)
                 debug_color = (255, 255, 255)
                 if self.matrix[y][x] == 0 and debug == 3:
-                    pygame.draw.rect(self.screen, debug_color, debugrect, BLOCK_LINE_WIDTH)
+                    pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
                     self.screen.set_colorkey((1,1,1))
                 if rot_matrix[y][x] != 0 and debug == 4:
                     pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
