@@ -1,6 +1,6 @@
 import pygame
 
-CAPTION = "jsTetris"			   # game window caption
+CAPTION = "PyTetris"			   # game window caption
 BACK_COLOR = (221, 33, 100)        # background color
 PAUSE_COLOR = (221, 33, 100)        # background color
 GRID_COLOR = (255, 255, 255)   	   # grid lines color
@@ -13,9 +13,11 @@ BLOCK_SIZE = 30             	   # grid cell size     ---/
 BUTTON_SIZE = 80				   # width & height of button
 BLOCK_LINE_WIDTH = 8               # block line thickness
 GRID_LINE_WIDTH = 2                # grid line thickness
+BUTTON_TIMEOUT = 600               # timeout of button highlight
 TICK = 600                  	   # tetromino logic performed every tick
 FPS = 120                          # Frames per seconds
 SPEED_MULTIPLIER = 7               # maximum speed increase when down is held
+CLEAR_SPEED = 6                    # speed of line clear animation
 DEBUG = 1                   	   # Debug level, higher values do cooler things
 SCREEN_Y_OFFSET = 50			   # X offset for grid placement
 SCREEN_X_OFFSET = 80 		       # Y offset for grid placement

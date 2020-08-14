@@ -49,7 +49,7 @@ def attach_buttons():
                           5, 'pause', [GameState_PAUSED, GameState_PLAYING], pause_toggle))
     buttons.append(Button(screen, pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, 0,
                                               BUTTON_SIZE, BUTTON_SIZE),
-                          5, 'restart', [GameState_PAUSED, GameState_GAMEOVER, GameState_PLAYING], restart))
+                          5, 'restart', [GameState_PAUSED, GameState_GAMEOVER, GameState_PLAYING], restart, 0))
     buttons.append(Button(screen, pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 5,
                                               BUTTON_SIZE, BUTTON_SIZE),
                           5, 'left', [GameState_PLAYING], getattr(grid, 'move_block_left')))
@@ -138,10 +138,10 @@ def run():
                 pause_toggle()
 
         # sends mouse coords to each button, button will only fire if game_state is in its valid_states
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            for button in buttons:
-                button.end_click_event(game_state, *pygame.mouse.get_pos())
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        # if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+        #     for button in buttons:
+        #         button.end_click_event(game_state, *pygame.mouse.get_pos())
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for button in buttons:
                 button.start_click_event(game_state, *pygame.mouse.get_pos())
 
@@ -230,7 +230,7 @@ def run():
     # always draw osd and buttons
     osd.draw(DEBUG)
     for button in buttons:
-        button.draw(DEBUG, game_state)
+        button.draw(DEBUG, game_state, deltaTime)
 
     pygame.display.flip()
 

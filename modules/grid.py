@@ -2,6 +2,7 @@ from modules.block import Block
 import random
 from modules.globals import *
 from modules.polyfill import clamp
+from time import sleep
 
 
 #########################################################
@@ -15,6 +16,7 @@ class Grid:
         self.counter = 0
         self.last_moved = 0
         self.locked = False
+        self.tetris_lines = []
 
         self.score = 0
         self.level = 1
@@ -24,6 +26,8 @@ class Grid:
 
         self.GridState_PLAYING = 0
         self.GridState_GAMEOVER = 1
+        self.GridState_TETRIS = 2
+
         self.state = self.GridState_PLAYING
         # Short hand 2d array initialised to 0
         self.grid = [[0 for x in range(BLOCK_WIDTH)] for y in range(BLOCK_HEIGHT)]
@@ -53,15 +57,33 @@ class Grid:
 
     # Checks each row in the grid, if it is completely filled, pop it and insert a new row at the top
     def _check_tetris(self):
-        popped_lines = 0
-        for y in range(len(self.grid)):
-            # Pop the row if each cell isn't 0
-            if all(cell != 0 for cell in self.grid[y]):
-                self.grid.pop(y)
-                self.grid.insert(0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-                popped_lines += 1
-        self.lines += self._calc_lines(popped_lines)
-        self.score += self._calc_score(popped_lines)
+        if self.state != self.GridState_TETRIS:
+            for y in range(len(self.grid)):
+                # Pop the row if each cell isn't 0
+                if all(cell != 0 for cell in self.grid[y]):
+                    self.tetris_lines.append(y)
+                    self.state = self.GridState_TETRIS
+
+        if self.state == self.GridState_TETRIS:
+            tetris_done = True
+            for y in self.tetris_lines:
+                for x in range(len(self.grid[y]) / 2 - 1):
+                    if self.grid[y][len(self.grid[y]) / 2 + x] != 0:
+                        self.grid[y][len(self.grid[y]) / 2 + x] = 0
+                        self.grid[y][len(self.grid[y]) / 2 - 1 - x] = 0
+                        tetris_done = False
+                        break
+
+            if tetris_done:
+                self.lines += self._calc_lines(len(self.tetris_lines))
+                self.score += self._calc_score(len(self.tetris_lines))
+                for y in self.tetris_lines:
+                    self.grid.pop(y)
+                    self.grid.insert(0, [0] * BLOCK_WIDTH)
+                self.tetris_lines = []
+                self.state = self.GridState_PLAYING
+
+
 
     # adapted from wiki, see gravity: https://tetris.fandom.com/wiki/Tetris_Worlds
     def _set_tick(self):
@@ -69,7 +91,7 @@ class Grid:
         if DEBUG >= 2:
             print("Tick: {}".format(self.tick))
 
-    # self.level * 5 adapted from wiki, https://tetris.fandom.com/wiki/Tetris_Guideline
+    # self.level * 5f adapted from wiki, https://tetris.fandom.com/wiki/Tetris_Guideline
     def _check_levelup(self):
         if self.lines >= self.level * 5:
             self.level += 1
@@ -184,29 +206,37 @@ class Grid:
 
     # every tick check the state of the block and react accordingly
     def update_block(self, debug, dt):
-        # Do block stuff after we hit the tick timer value
-        self.counter += dt
-        self.last_moved += dt
-        if self.counter >= self.tick:
-            self.counter = 0
-            # move down if we won't collide
-            if not self._colliding(self.current_block, 0, 1):
-                self.current_block.move_down()
-            # else if the block is locked or a block movement hasn't occurred for half a tick
-            elif self.locked or self.last_moved > self.tick / 2:
-                self._map_block(self.current_block)
-                self._check_tetris()
-                self._check_levelup()
-                self._create_block()
+        if self.state == self.GridState_PLAYING:
+            # Do block stuff after we hit the tick timer value
+            self.counter += dt
+            self.last_moved += dt
+            if self.counter >= self.tick:
+                self.counter = 0
+                # move down if we won't collide
+                if not self._colliding(self.current_block, 0, 1):
+                    self.current_block.move_down()
+                # else if the block is locked or a block movement hasn't occurred for half a tick
+                elif self.locked or self.last_moved > self.tick / 2:
+                    self._map_block(self.current_block)
+                    self._check_tetris()
+                    self._check_levelup()
+                    self._create_block()
 
-            # block inside block means we've hit the ceiling
-            if self._colliding(self.current_block, 0, 0):
-                self.state = self.GridState_GAMEOVER
+                # block inside block means we've hit the ceiling
+                if self._colliding(self.current_block, 0, 0):
+                    self.state = self.GridState_GAMEOVER
+
+        elif self.state == self.GridState_TETRIS:
+            self.counter += dt * CLEAR_SPEED
+            if self.counter >= self.tick:
+                self.counter = 0
+                self._check_tetris()
 
     # Draw grid lines and filled blocks
     def _draw_grid(self, debug):
-        self.screen.fill((BACK_COLOR))
-        self.current_block.draw(debug)
+        self.screen.fill(BACK_COLOR)
+        # draw block if in PLAYING state
+        self.current_block.draw(debug, self.state == self.GridState_PLAYING)
         # Draw a vertical line for each x block + 1
         for x in range(len(self.grid[0]) + 1):
             pygame.draw.line(self.screen, GRID_COLOR, [x * BLOCK_SIZE, 0],
@@ -223,8 +253,11 @@ class Grid:
             for x in range(len(self.grid[y])):
                 # Draw rectangles in cells with their appropriate color (based on what tetromino filled them)
                 if self.grid[y][x] != 0:
+                    block_rect = Block.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, .6)
+                    pygame.draw.rect(self.screen, (0, 0, 0),
+                                      pygame.Rect(block_rect.x + 2, block_rect.y + 2, block_rect.width, block_rect.height), BLOCK_LINE_WIDTH)
                     pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),
-                                     Block.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, .6), BLOCK_LINE_WIDTH)
+                                     block_rect, BLOCK_LINE_WIDTH)
                 # Overlay each cells value on the screen with a color that is human readable (inverted)
                 if debug == 5:
                     text_surface = DEBUG_FONT.render(str(self.grid[y][x]), True, (255, 255, 255))
