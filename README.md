@@ -5,20 +5,14 @@ A basic implementation of Tetris, coded in Python using Pygame, compiled to Java
 <img src="images/PyTetris.gif" width="150"/>
 
 ## How to run
-python2.7 or python3 and pygame library must be installed to run PyTetris. 
+Host the contents of the 'output' directory using your favourite web-browser. The quickest way to achive this is:
 
-For example, to install python3 and pygame on a debian linux system:
+```shell
+cd PyTetris/output
+python3 -m http.server 8080
+```
 
-```bash
-sudo apt install python3
-```
-```bash
-python3 -m pip install -u pygame --user
-```
-Once the dependancies have been met the game can be run as follows:
-```bash
-python3 main.py
-```
+Then visit http://localhost:8080.
 
 ## Controls
 Normal keyboard controls are as follows:
