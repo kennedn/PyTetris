@@ -1,5 +1,5 @@
 from modules.globals import *
-from polyfill import clamp
+from modules.polyfill import clamp, lerp_tuple
 
 ####################################################################################
 # draw a clickable button that performs an action
@@ -19,14 +19,14 @@ class Button:
         self.b_type = b_type
         self.valid_states = valid_states
         self.function = function
-        self.reverse_color = pygame.Color(BUTTON_COLOR_FG)
+        self.reverse_color = BUTTON_COLOR_FG
         self.counter = counter
         self.timeout = BUTTON_TIMEOUT
 
     # check if x,y are colliding and if gamestate is correct, if so, reverse colors for a 'pressed' look
     def start_click_event(self, state, x, y):
         if self.rect.collidepoint(x, y) and state in self.valid_states:
-            self.reverse_color = pygame.Color(BUTTON_COLOR_BG)
+            self.reverse_color = BUTTON_COLOR_FG
             self.counter = 0
             self.function()
 
@@ -58,11 +58,10 @@ class Button:
 
     def draw(self, debug, state, dt):
         self.surface.fill(BACK_COLOR)
-        if self.counter <= self.timeout:
-            self.counter += dt
 
-        self.reverse_color = self.reverse_color.lerp(BACK_COLOR, clamp(0, 1, self.counter / float(self.timeout)))
-
+        self.counter += dt
+        # lerp between background color and button color, using the proximity to self.timeout as a lerp
+        self.reverse_color = lerp_tuple(BACK_COLOR, BUTTON_COLOR_FG, clamp(0, 1, self.counter / float(self.timeout)))
         # if we are in a valid game state
         if state in self.valid_states:
             if debug >= 2:

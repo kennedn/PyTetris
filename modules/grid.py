@@ -67,10 +67,10 @@ class Grid:
         if self.state == self.GridState_TETRIS:
             tetris_done = True
             for y in self.tetris_lines:
-                for x in range(len(self.grid[y]) / 2 - 1):
-                    if self.grid[y][len(self.grid[y]) / 2 + x] != 0:
-                        self.grid[y][len(self.grid[y]) / 2 + x] = 0
-                        self.grid[y][len(self.grid[y]) / 2 - 1 - x] = 0
+                for x in range(int(len(self.grid[y]) // 2 - 1)):
+                    if self.grid[y][len(self.grid[y]) // 2 + x] != 0:
+                        self.grid[y][len(self.grid[y]) // 2 + x] = 0
+                        self.grid[y][len(self.grid[y]) // 2 - 1 - x] = 0
                         tetris_done = False
                         break
 

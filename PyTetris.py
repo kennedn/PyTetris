@@ -89,9 +89,6 @@ def run():
 
     # main event loop (mostly for keyboard)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
         # Debug functions
         if DEBUG > 0:
             # Debug level incrementer / decrementer - numpad + and -
@@ -133,14 +130,17 @@ def run():
         # reset down_held so that we recheck
         down_held = False
 
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+        # restart game
+        if event.type == pygame.KEYUP and event.key == pygame.K_r:
+            restart()
+
         if game_state == GameState_PLAYING or game_state == GameState_PAUSED:
             if event.type == pygame.KEYUP and event.key == pygame.K_p:
                 pause_toggle()
 
-        # sends mouse coords to each button, button will only fire if game_state is in its valid_states
-        # if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-        #     for button in buttons:
-        #         button.end_click_event(game_state, *pygame.mouse.get_pos())
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for button in buttons:
                 button.start_click_event(game_state, *pygame.mouse.get_pos())
@@ -164,16 +164,8 @@ def run():
             # track if the down key is being held
             if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 down_held = True
-            # restart game
-            if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                restart()
 
-        if game_state == GameState_GAMEOVER:
-            # restart game
-            if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                restart()
     if game_state == GameState_PLAYING:
-
         # perform additional updates to block if we want to go down faster
         if down_held:
             grid.update_block(DEBUG, deltaTime * max(.5, SPEED_MULTIPLIER - grid.level))
