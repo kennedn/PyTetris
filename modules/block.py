@@ -153,6 +153,9 @@ class Block:
                     pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
 
                 if self.matrix[y][x] != 0:
+                    pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(cell_rect.x + 2, cell_rect.y + 2,
+                                                                         cell_rect.width, cell_rect.height),
+                                     BLOCK_LINE_WIDTH)
                     pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
 
         if to_screen:

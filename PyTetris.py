@@ -1,9 +1,12 @@
 #!/usr/bin/python
-import pyjsdl as pygame
+from modules.globals import *
 from modules.grid import Grid
 from modules.osd import OSD
 from modules.button import Button
-from modules.globals import *
+if PYJSDL:
+    import pyjsdl as pygame
+else:
+    import pygame
 
 # setup pygame instance
 pygame.display.init()
@@ -49,7 +52,7 @@ def attach_buttons():
                           5, 'pause', [GameState_PAUSED, GameState_PLAYING], pause_toggle))
     buttons.append(Button(screen, pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, 0,
                                               BUTTON_SIZE, BUTTON_SIZE),
-                          5, 'restart', [GameState_PAUSED, GameState_GAMEOVER, GameState_PLAYING], restart))
+                          5, 'restart', [GameState_PAUSED, GameState_GAMEOVER, GameState_PLAYING], restart, 0))
     buttons.append(Button(screen, pygame.Rect(SCREEN_WIDTH - BUTTON_SIZE + 1, SCREEN_HEIGHT - BUTTON_SIZE * 5,
                                               BUTTON_SIZE, BUTTON_SIZE),
                           5, 'left', [GameState_PLAYING], getattr(grid, 'move_block_left')))
@@ -89,7 +92,6 @@ def run():
 
     # main event loop (mostly for keyboard)
     for event in pygame.event.get():
-
         # Debug functions
         if DEBUG > 0:
             # Debug level incrementer / decrementer - numpad + and -
@@ -131,15 +133,18 @@ def run():
         # reset down_held so that we recheck
         down_held = False
 
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+        # restart game
+        if event.type == pygame.KEYUP and event.key == pygame.K_r:
+            restart()
+
         if game_state == GameState_PLAYING or game_state == GameState_PAUSED:
             if event.type == pygame.KEYUP and event.key == pygame.K_p:
                 pause_toggle()
 
-        # sends mouse coords to each button, button will only fire if game_state is in its valid_states
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            for button in buttons:
-                button.end_click_event(game_state, *pygame.mouse.get_pos())
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for button in buttons:
                 button.start_click_event(game_state, *pygame.mouse.get_pos())
 
@@ -162,16 +167,8 @@ def run():
             # track if the down key is being held
             if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
                 down_held = True
-            # restart game
-            if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                restart()
 
-        if game_state == GameState_GAMEOVER:
-            # restart game
-            if event.type == pygame.KEYUP and event.key == pygame.K_r:
-                restart()
     if game_state == GameState_PLAYING:
-
         # perform additional updates to block if we want to go down faster
         if down_held:
             grid.update_block(DEBUG, deltaTime * max(.5, SPEED_MULTIPLIER - grid.level))
@@ -228,10 +225,16 @@ def run():
     # always draw osd and buttons
     osd.draw(DEBUG)
     for button in buttons:
-        button.draw(DEBUG, game_state)
+        button.draw(DEBUG, game_state, deltaTime)
 
     pygame.display.flip()
 
 
-# point pyjsdl to our main function
-pygame.display.setup(run)
+# main loop for game
+if PYJSDL:
+    pygame.display.setup(run)
+else:
+    while True:
+        run()
+
+

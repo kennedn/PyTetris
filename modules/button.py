@@ -1,5 +1,5 @@
 from modules.globals import *
-
+from modules.polyfill import clamp, lerp_tuple
 
 ####################################################################################
 # draw a clickable button that performs an action
@@ -10,7 +10,7 @@ from modules.globals import *
 # {list<int>} valid_states - list of game states to enable button in
 # {function} function - action to perform upon valid click event
 class Button:
-    def __init__(self, display, rect, pad, b_type, valid_states, function):
+    def __init__(self, display, rect, pad, b_type, valid_states, function, counter=0):
         self.display = display
         self.surface = pygame.Surface((rect.width, rect.height))
         self.rect = rect
@@ -19,20 +19,16 @@ class Button:
         self.b_type = b_type
         self.valid_states = valid_states
         self.function = function
-        self.reverse_color = False
-
-    # revert colors to 'unpressed' state, check if x,y are colliding and if gamestate is correct, if so run function
-    def end_click_event(self, state, x, y):
-        self.game_state = state
-        self.reverse_color = False
-        if self.rect.collidepoint(x, y) and state in self.valid_states:
-            self.function()
+        self.reverse_color = BUTTON_COLOR_FG
+        self.counter = counter
+        self.timeout = BUTTON_TIMEOUT
 
     # check if x,y are colliding and if gamestate is correct, if so, reverse colors for a 'pressed' look
     def start_click_event(self, state, x, y):
-        self.game_state = state
         if self.rect.collidepoint(x, y) and state in self.valid_states:
-            self.reverse_color = True
+            self.reverse_color = BUTTON_COLOR_FG
+            self.counter = 0
+            self.function()
 
     # Handle types, import and draws a list of points for icons (polygon) or render and blit text for text types
     def draw_type(self, debug):
@@ -60,13 +56,17 @@ class Button:
         if points is not None:
             pygame.draw.polygon(self.surface, BUTTON_COLOR_FG, points)
 
-    def draw(self, debug, state):
-        self.surface.fill((BACK_COLOR))
+    def draw(self, debug, state, dt):
+        self.surface.fill(BACK_COLOR)
+
+        self.counter += dt
+        # lerp between background color and button color, using the proximity to self.timeout as a lerp
+        self.reverse_color = lerp_tuple(BACK_COLOR, BUTTON_COLOR_FG, clamp(0, 1, self.counter / float(self.timeout)))
         # if we are in a valid game state
         if state in self.valid_states:
-            width = 0 if self.reverse_color else 2
             if debug >= 2:
                 pygame.draw.rect(self.surface, (128, 0, 128), self.rect, 1)
-            pygame.draw.rect(self.surface, BUTTON_COLOR_BG, self.rect_normal, width)
+            pygame.draw.rect(self.surface, self.reverse_color, self.rect_normal)
+            pygame.draw.rect(self.surface, BUTTON_COLOR_BG, self.rect_normal, 2)
             self.draw_type(debug)
         self.display.blit(self.surface, self.rect)

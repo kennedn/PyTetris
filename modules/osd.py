@@ -1,5 +1,8 @@
-import pyjsdl as pygame
 from modules.globals import *
+if PYJSDL:
+    import pyjsdl as pygame
+else:
+    import pygame
 
 
 ####################################################################################
