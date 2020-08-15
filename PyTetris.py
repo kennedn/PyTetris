@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from modules.globals import *
 from modules.grid import Grid
 from modules.osd import OSD

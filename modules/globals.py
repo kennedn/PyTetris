@@ -1,4 +1,5 @@
 PYJSDL = True                      # changes some lines to run under Pyjsdl compiler
+DEBUG = 0                   	   # Debug level, higher values do cooler things
 BACK_COLOR = (221, 33, 100)        # background color
 PAUSE_COLOR = (221, 33, 100)       # background color
 GRID_COLOR = (255, 255, 255)   	   # grid lines color
@@ -16,7 +17,6 @@ TICK = 600                  	   # tetromino logic performed every tick
 FPS = 120                          # Frames per seconds
 SPEED_MULTIPLIER = 7               # maximum speed increase when down is held
 CLEAR_SPEED = 6                    # speed of line clear animation
-DEBUG = 1                   	   # Debug level, higher values do cooler things
 SCREEN_Y_OFFSET = 50			   # X offset for grid placement
 SCREEN_X_OFFSET = 80 		       # Y offset for grid placement
 OSD_HEIGHT = SCREEN_Y_OFFSET	   # height of on screen display
