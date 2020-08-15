@@ -1,8 +1,6 @@
-import pygame
-
-CAPTION = "PyTetris"			   # game window caption
+PYJSDL = False                     # changes some lines to run under Pyjsdl compiler
 BACK_COLOR = (221, 33, 100)        # background color
-PAUSE_COLOR = (221, 33, 100)        # background color
+PAUSE_COLOR = (221, 33, 100)       # background color
 GRID_COLOR = (255, 255, 255)   	   # grid lines color
 BUTTON_COLOR_BG = (255, 255, 255)  # button background rect color
 BUTTON_COLOR_FG = (255, 255, 255)  # button image / text color
@@ -27,6 +25,13 @@ OSD_WIDTH = SCREEN_X_OFFSET		   # width of on screen display
 # complete screen width x height, based on grid size and offsets
 SCREEN_WIDTH = BLOCK_WIDTH * BLOCK_SIZE + 1 + SCREEN_X_OFFSET
 SCREEN_HEIGHT = BLOCK_HEIGHT * BLOCK_SIZE + 1 + SCREEN_Y_OFFSET + GRID_LINE_WIDTH
+
+if PYJSDL:
+    import pyjsdl as pygame
+    CAPTION = "jsTetris"  # game window caption
+else:
+    import pygame
+    CAPTION = "PyTetris"  # game window caption
 
 # font definitions
 pygame.font.init()

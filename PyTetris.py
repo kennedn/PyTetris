@@ -1,9 +1,12 @@
-#!/usr/bin/python
-import pygame
+#!/usr/bin/env python
+from modules.globals import *
 from modules.grid import Grid
 from modules.osd import OSD
 from modules.button import Button
-from modules.globals import *
+if PYJSDL:
+    import pyjsdl as pygame
+else:
+    import pygame
 
 # setup pygame instance
 pygame.display.init()
@@ -227,7 +230,11 @@ def run():
     pygame.display.flip()
 
 
-# main loop
-while True:
-    run()
+# main loop for game
+if PYJSDL:
+    pygame.display.setup(run)
+else:
+    while True:
+        run()
+
 

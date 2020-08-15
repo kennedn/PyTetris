@@ -2,7 +2,6 @@ from modules.block import Block
 import random
 from modules.globals import *
 from modules.polyfill import clamp
-from time import sleep
 
 
 #########################################################
@@ -55,31 +54,44 @@ class Grid:
                 if block.matrix[y][x] != 0:
                     self.grid[block.get_relative_y(y)][block.get_relative_x(x)] = block.block_type
 
-    # Checks each row in the grid, if it is completely filled, pop it and insert a new row at the top
+    # calculate a list of completely filled rows, trigger animated removal, update score when done
     def _check_tetris(self):
+        # if a grid animation is not already in-flight
         if self.state != self.GridState_TETRIS:
+            # generate a list of each row that is completely filled
             for y in range(len(self.grid)):
-                # Pop the row if each cell isn't 0
                 if all(cell != 0 for cell in self.grid[y]):
                     self.tetris_lines.append(y)
-                    self.state = self.GridState_TETRIS
+            # if the list isn't empty, trigger the animation
+            if len(self.tetris_lines) > 0:
+                self.state = self.GridState_TETRIS
 
-        if self.state == self.GridState_TETRIS:
+        # if grid is in animation state
+        elif self.state == self.GridState_TETRIS:
             tetris_done = True
+            # for each filled row
             for y in self.tetris_lines:
+                # count from center of row to end
                 for x in range(int(len(self.grid[y]) // 2 - 1)):
+                    # if cell is not 0
                     if self.grid[y][len(self.grid[y]) // 2 + x] != 0:
+                        # fill cell and mirrored counterpart
                         self.grid[y][len(self.grid[y]) // 2 + x] = 0
                         self.grid[y][len(self.grid[y]) // 2 - 1 - x] = 0
+                        # work was done so we haven't finished the animation
                         tetris_done = False
+                        # we only want to fill one cell on each call of _check_tetris so animation is not instant
                         break
-
+            # if no cells were changed this run, we have completed the animation
             if tetris_done:
+                # update score based on how many lines we cleared
                 self.lines += self._calc_lines(len(self.tetris_lines))
                 self.score += self._calc_score(len(self.tetris_lines))
+                # pop each line that was filled and insert a new blank line at top of grid
                 for y in self.tetris_lines:
                     self.grid.pop(y)
-                    self.grid.insert(0, [0] * BLOCK_WIDTH)
+                    self.grid.insert(0, [0 for x in range(BLOCK_WIDTH)])
+                # reset tetris_lines list and grid state
                 self.tetris_lines = []
                 self.state = self.GridState_PLAYING
 
