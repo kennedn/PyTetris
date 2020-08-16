@@ -1,1 +1,0 @@
-$pyjs.loaded_modules.modules=function(a){if($pyjs.loaded_modules.modules.__was_initialized__)return $pyjs.loaded_modules.modules;var b=$pyjs.loaded_modules.modules;b.__repr__=function(){return"<module: modules>"};b.__was_initialized__=!0;if(null===a||"undefined"==typeof a)a="modules";b.__name__=a;return this};

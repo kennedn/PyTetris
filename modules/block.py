@@ -1,5 +1,5 @@
 from modules.globals import *
-
+from modules.polyfill import lerp_tuple
 #########################################################
 # defines a tetromino
 # {pygame.Surface} display - parent surface for blitting
@@ -137,7 +137,7 @@ class Block:
         print("")
 
     # Draw each cell based on position and matrix
-    def draw(self, debug, to_screen=True):
+    def draw(self, debug, to_screen=True, lerp=0):
         self.screen.fill((BACK_COLOR))
         rot_matrix = self.get_next_rotation(self.matrix)
         for y in range(len(self.matrix)):
@@ -153,10 +153,18 @@ class Block:
                     pygame.draw.rect(self.screen, debug_color, debug_rect, BLOCK_LINE_WIDTH)
 
                 if self.matrix[y][x] != 0:
-                    pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(cell_rect.x + 2, cell_rect.y + 2,
-                                                                         cell_rect.width, cell_rect.height),
-                                     BLOCK_LINE_WIDTH)
-                    pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
+                    if lerp == 0:
+                        if not PYJSDL:
+                            pygame.draw.rect(self.screen, (0, 0, 0),
+                                             pygame.Rect(cell_rect.x + 2, cell_rect.y + 2,
+                                                         cell_rect.width, cell_rect.height), BLOCK_LINE_WIDTH)
+                        pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
+                    else:
+                        pygame.draw.rect(self.screen,
+                                         lerp_tuple(GHOST_COLOR, BACK_COLOR, lerp),
+                                         self.get_rect(x, y, BLOCK_SIZE, 0, 1), 0)
+                        print("lerp: {}".format(lerp))
+
 
         if to_screen:
             self.display.blit(self.screen, (self.position[0] * BLOCK_SIZE + 0,
