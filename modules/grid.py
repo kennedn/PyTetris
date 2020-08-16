@@ -35,6 +35,7 @@ class Grid:
         self.block_list = list(range(1, 8))
         self.current_block = None
         self.next_block = None
+        self.projection_block = None
         # Generate random tetromino at top of screen
         self._create_block()
 
@@ -44,6 +45,7 @@ class Grid:
             self.current_block = self.next_block
         else:
             self.current_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
+        self.projection_block = Block(self.screen, self.current_block.block_type)
         self.next_block = Block(self.screen, self.block_list.pop(random.randint(0, len(self.block_list) - 1)))
         self.locked = False
 
@@ -95,7 +97,10 @@ class Grid:
                 self.tetris_lines = []
                 self.state = self.GridState_PLAYING
 
-
+    def _project_block(self):
+        self.projection_block.position = self.current_block.position
+        self.projection_block.matrix = self.current_block.matrix
+        self.move_block_to_bottom(self.projection_block)
 
     # adapted from wiki, see gravity: https://tetris.fandom.com/wiki/Tetris_Worlds
     def _set_tick(self):
@@ -204,11 +209,13 @@ class Grid:
             self.current_block.move_down()
 
     # keep pushing the block down until we would collide
-    def move_block_to_bottom(self):
-        if not self._colliding(self.current_block, 0, 1):
-            self.current_block.move_down()
+    def move_block_to_bottom(self, block=None):
+        if block is None:
+            block = self.current_block
+        if not self._colliding(block, 0, 1):
+            block.move_down()
             # recursively call self
-            if not self.move_block_to_bottom():
+            if not self.move_block_to_bottom(block) and block == self.current_block:
                 # force a tick update
                 self.counter = self.tick
                 # lock the block to bypass block movement check
@@ -247,6 +254,8 @@ class Grid:
     # Draw grid lines and filled blocks
     def _draw_grid(self, debug):
         self.screen.fill(BACK_COLOR)
+        self.projection_block.draw(debug, self.state == self.GridState_PLAYING,
+                                   clamp(0, 1, (self.projection_block.position[1] - self.current_block.position[1]) / float(BLOCK_HEIGHT) ))
         # draw block if in PLAYING state
         self.current_block.draw(debug, self.state == self.GridState_PLAYING)
         # Draw a vertical line for each x block + 1
@@ -266,8 +275,9 @@ class Grid:
                 # Draw rectangles in cells with their appropriate color (based on what tetromino filled them)
                 if self.grid[y][x] != 0:
                     block_rect = Block.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, .6)
-                    pygame.draw.rect(self.screen, (0, 0, 0),
-                                      pygame.Rect(block_rect.x + 2, block_rect.y + 2, block_rect.width, block_rect.height), BLOCK_LINE_WIDTH)
+                    if not PYJSDL:
+                        pygame.draw.rect(self.screen, (0, 0, 0),
+                                          pygame.Rect(block_rect.x + 2, block_rect.y + 2, block_rect.width, block_rect.height), BLOCK_LINE_WIDTH)
                     pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),
                                      block_rect, BLOCK_LINE_WIDTH)
                 # Overlay each cells value on the screen with a color that is human readable (inverted)
@@ -282,6 +292,7 @@ class Grid:
     def update(self, debug, dt):
         self._draw_grid(debug)
         self.update_block(debug, dt)
+        self._project_block()
         if len(self.block_list) == 0:
             self.block_list = list(range(1, 8))
 
