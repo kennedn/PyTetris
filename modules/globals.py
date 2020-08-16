@@ -1,8 +1,8 @@
 PYJSDL = True                      # changes some lines to run under Pyjsdl compiler
-DEBUG = 1                   	   # Debug level, higher values do cooler things
+DEBUG = 0                   	   # Debug level, higher values do cooler things
 BACK_COLOR = (221, 33, 100)        # background color
-PAUSE_COLOR = (221, 33, 100)       # background color
-GHOST_COLOR = (255, 100, 144)
+PAUSE_COLOR = (221, 33, 100)       # pause color
+GHOST_COLOR = (255, 100, 144)      # block prediction color
 GRID_COLOR = (255, 255, 255)   	   # grid lines color
 BUTTON_COLOR_BG = (255, 255, 255)  # button background rect color
 BUTTON_COLOR_FG = (255, 255, 255)  # button image / text color
