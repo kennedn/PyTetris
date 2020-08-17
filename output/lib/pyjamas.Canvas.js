@@ -1,0 +1,2 @@
+$pyjs.loaded_modules["pyjamas.Canvas"]=function(a){if($pyjs.loaded_modules["pyjamas.Canvas"].__was_initialized__)return $pyjs.loaded_modules["pyjamas.Canvas"];"undefined"!=typeof $pyjs.loaded_modules.pyjamas&&$pyjs.loaded_modules.pyjamas.__was_initialized__||$p.___import___("pyjamas",null);var b=$pyjs.loaded_modules["pyjamas.Canvas"];b.__repr__=function(){return"<module: pyjamas.Canvas>"};b.__was_initialized__=!0;if(null===a||"undefined"==typeof a)a="pyjamas.Canvas";b.__name__=a;$pyjs.loaded_modules.pyjamas.Canvas=
+$pyjs.loaded_modules["pyjamas.Canvas"];return this};
