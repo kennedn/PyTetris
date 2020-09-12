@@ -25,7 +25,7 @@ Normal keyboard controls are as follows:
 | Normal Keys |  Action         |
 |------------ |-----------------|
 | Left Arrow  | Move Left       |
-| Rigth Arrow | Move Right      |
+| Right Arrow | Move Right      |
 | Z           | Rotate Left     |
 | X           | Rotate Right    |
 | Down Arrow  | Soft Drop       |
