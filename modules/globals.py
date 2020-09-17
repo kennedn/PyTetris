@@ -1,4 +1,4 @@
-PYJSDL = True                      # changes some lines to run under Pyjsdl compiler
+PYJSDL = False                      # changes some lines to run under Pyjsdl compiler
 DEBUG = 0                   	   # Debug level, higher values do cooler things
 BACK_COLOR = (221, 33, 100)        # background color
 PAUSE_COLOR = (221, 33, 100)       # pause color
