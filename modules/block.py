@@ -155,10 +155,9 @@ class Block:
                 if self.matrix[y][x] != 0:
                     if lerp == 0:
                         # draw a block shadow if running under pygame
-                        if not PYJSDL:
-                            pygame.draw.rect(self.screen, (0, 0, 0),
-                                             pygame.Rect(cell_rect.x + 2, cell_rect.y + 2,
-                                                         cell_rect.width, cell_rect.height), BLOCK_LINE_WIDTH)
+                        pygame.draw.rect(self.screen, (0, 0, 0),
+                                         pygame.Rect(cell_rect.x + 2, cell_rect.y + 2,
+                                                     cell_rect.width, cell_rect.height), BLOCK_LINE_WIDTH)
                         pygame.draw.rect(self.screen, self.get_color(self.block_type), cell_rect, BLOCK_LINE_WIDTH)
                     # lerp value passed, assume we are a drop prediction block and draw differently
                     else:

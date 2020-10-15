@@ -275,9 +275,9 @@ class Grid:
                 # Draw rectangles in cells with their appropriate color (based on what tetromino filled them)
                 if self.grid[y][x] != 0:
                     block_rect = Block.get_rect(x, y, BLOCK_SIZE, GRID_LINE_WIDTH, .6)
-                    if not PYJSDL:
-                        pygame.draw.rect(self.screen, (0, 0, 0),
-                                          pygame.Rect(block_rect.x + 2, block_rect.y + 2, block_rect.width, block_rect.height), BLOCK_LINE_WIDTH)
+                    pygame.draw.rect(self.screen, (0, 0, 0),
+                                     pygame.Rect(block_rect.x + 2, block_rect.y + 2,
+                                                 block_rect.width, block_rect.height), BLOCK_LINE_WIDTH)
                     pygame.draw.rect(self.screen, Block.get_color(self.grid[y][x]),
                                      block_rect, BLOCK_LINE_WIDTH)
                 # Overlay each cells value on the screen with a color that is human readable (inverted)
