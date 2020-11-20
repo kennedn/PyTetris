@@ -17,7 +17,7 @@ python3 -m pip install -u pygame --user
 ```
 Once the dependancies have been met the game can be run as follows:
 ```bash
-python3 main.py
+python3 PyTetris.py
 ```
 
 ## Controls
