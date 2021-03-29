@@ -19,9 +19,19 @@ if (!window.document.documentMode) {
 	       event.preventDefault();
 	}, {passive: false}); 
 
-	// Prevent touch event if more than one finger is present
-	document.addEventListener('touchstart',(event) => {
-	    if(event.touches.length > 1)
-	        event.preventDefault();
-	}, {passive: false});
+  function preventZoom(e) {
+      var t2 = e.timeStamp;
+      var t1 = e.target.dataset.lastTouch || t2;
+      var dt = t2 - t1;
+      var fingers = e.touches.length;
+      e.target.dataset.lastTouch = t2;
+
+      if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+
+      e.preventDefault();
+      e.target.click();
+  }
+
+	document.addEventListener('touchend', preventZoom);
+
 }
