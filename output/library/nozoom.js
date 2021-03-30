@@ -1,3 +1,16 @@
+function preventZoom(e) {
+  var t2 = e.timeStamp;
+  var t1 = e.target.dataset.lastTouch || t2;
+  var dt = t2 - t1;
+  var fingers = e.touches.length;
+  e.target.dataset.lastTouch = t2;
+
+  if (!dt || dt > 500 || fingers > 1 || ! /^((?!chrome|android).)*safari/i.test(navigator.userAgent)) return; // not double-tap
+
+  e.preventDefault();
+  e.target.click();
+}
+
 if (!window.document.documentMode) {
 	// Prevent plus & minus key input when ctrl is pressed
 	document.addEventListener('keydown', (event) => {
@@ -19,18 +32,6 @@ if (!window.document.documentMode) {
 	       event.preventDefault();
 	}, {passive: false}); 
 
-  function preventZoom(e) {
-      var t2 = e.timeStamp;
-      var t1 = e.target.dataset.lastTouch || t2;
-      var dt = t2 - t1;
-      var fingers = e.touches.length;
-      e.target.dataset.lastTouch = t2;
-
-      if (!dt || dt > 500 || fingers > 1) return; // not double-tap
-
-      e.preventDefault();
-      e.target.click();
-  }
 
 	document.addEventListener('touchend', preventZoom);
 
